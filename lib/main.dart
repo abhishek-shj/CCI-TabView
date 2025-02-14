@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -8,8 +9,9 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Set system UI overlay styles.
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
+      statusBarColor: Color(0xFCFCF6),
       statusBarIconBrightness: Brightness.dark,
       systemNavigationBarColor: Colors.white,
       systemNavigationBarIconBrightness: Brightness.dark,
@@ -17,7 +19,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SearchScreen(),
+      home: SearchScreen(), // Training page
     );
   }
 }
@@ -27,7 +29,8 @@ class SearchScreen extends StatefulWidget {
   _SearchScreenState createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderStateMixin {
+class _SearchScreenState extends State<SearchScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   final List<Map<String, dynamic>> statusTabs = [
@@ -53,13 +56,20 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
 
   Widget _buildSearchBar() {
     return Container(
-      padding: EdgeInsets.fromLTRB(17, 8, 10, 8),
+      height: 50,
+      padding: EdgeInsets.symmetric(horizontal: 17),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(42),
         boxShadow: [
-          BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.07), offset: Offset(0, 4), blurRadius: 4),
-          BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.32), offset: Offset(0, 0.75), blurRadius: 2),
+          BoxShadow(
+              color: Color.fromRGBO(0, 0, 0, 0.07),
+              offset: Offset(0, 4),
+              blurRadius: 4),
+          BoxShadow(
+              color: Color.fromRGBO(0, 0, 0, 0.32),
+              offset: Offset(0, 0.75),
+              blurRadius: 2),
         ],
       ),
       child: Row(
@@ -72,8 +82,12 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
               child: TextField(
                 decoration: InputDecoration(
                   hintText: "Search Courses",
-                  hintStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Color(0xFF66656A)),
+                  hintStyle: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF66656A)),
                   border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(vertical: 8),
                 ),
               ),
             ),
@@ -83,15 +97,16 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFFD7E8CD),
               foregroundColor: Color(0xFF407B1E),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18)),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.add, size: 22, color: Color(0xFF407B1E)),
+                Icon(Icons.add, size: 20, color: Color(0xFF407B1E)),
                 SizedBox(width: 2),
-                Text("Schedule", style: TextStyle(fontSize: 18)),
+                Text("Schedule", style: TextStyle(fontSize: 16)),
               ],
             ),
           ),
@@ -106,45 +121,52 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
       body: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
-            // Collapsible Search Bar
             SliverAppBar(
+              expandedHeight: 90.0,
               floating: true,
-              snap: true,
               pinned: false,
-              toolbarHeight: 120,
-              backgroundColor: Colors.white,
-              elevation: 0,
+              snap: true,
+              backgroundColor: Color(0xFFCFCF6),
               flexibleSpace: FlexibleSpaceBar(
-                background: Column(
-                  children: [
-                    SizedBox(height: 44),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(21, 16, 16, 10),
-                      child: _buildSearchBar(),
-                    ),
-                  ],
+                background: Container(
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).padding.top + 15, // Increased top padding
+                    bottom: 8,
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 21),
+                    child: _buildSearchBar(),
+                  ),
                 ),
               ),
             ),
-            // Fixed Status Tabs
             SliverPersistentHeader(
               pinned: true,
               delegate: _SliverAppBarDelegate(
                 TabBar(
                   controller: _tabController,
                   isScrollable: true,
+
                   labelColor: Color(0xFF66656A),
                   unselectedLabelColor: Color(0xFF66656A),
                   indicatorColor: Color(0xFF407B1E),
                   indicatorWeight: 3,
-                  padding: EdgeInsets.zero,
-                  labelPadding: EdgeInsets.only(right: 18),
+                  indicatorSize: TabBarIndicatorSize.tab, // Added for better alignment
+                  labelStyle: TextStyle(fontSize: 16), // Added for better mobile scaling
+                  indicatorPadding: EdgeInsets.symmetric(horizontal: 4), // Added for indicator alignment
+                  padding: EdgeInsets.symmetric(horizontal: 16), // Adjusted for mobile
+                  labelPadding: EdgeInsets.symmetric(horizontal: 12), // Adjusted for mobile
                   tabs: statusTabs.asMap().entries.map((entry) {
                     int index = entry.key;
                     var tab = entry.value;
                     return Tab(
+                      height: 52, // Increased height
                       child: Padding(
-                        padding: EdgeInsets.only(left: index == 0 ? 0 : 8),
+                        padding: EdgeInsets.only(
+                          left: index == 0 ? 0 : 4,
+                          bottom: 4,
+                          top: 4, // Added top padding
+                        ),
                         child: StatusTabWithImage(
                           title: tab["title"],
                           imagePath: tab["imagePath"],
@@ -157,6 +179,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                 ),
               ),
             ),
+
           ];
         },
         body: TabBarView(
@@ -165,86 +188,131 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             return ListView.builder(
               key: PageStorageKey(tab["title"]),
               padding: EdgeInsets.all(8),
-              itemCount: 18,
+              itemCount: 28,
               itemBuilder: (context, index) => TrainingCard(status: tab["title"]),
             );
           }).toList(),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        backgroundColor: Color(0xFF407B1E),
-        foregroundColor: Colors.white,
-        label: Text("Filter", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-        icon: Icon(Icons.filter_alt, size: 24),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(bottom: 20.0), // Adjust this value as needed
+        child: FloatingActionButton.extended(
+          onPressed: () {},
+          backgroundColor: Color(0xFF407B1E),
+          foregroundColor: Colors.white,
+          label: Text(
+            "Filter",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          ),
+          icon: Icon(Icons.filter_alt, size: 24),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: BottomNavigation(),
+
+      bottomNavigationBar: BottomNavigation(selectedIndex: 2),
     );
   }
 }
 
-// Add this new delegate class for the fixed status tabs
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   _SliverAppBarDelegate(this._tabBar);
 
   final TabBar _tabBar;
 
   @override
-  double get minExtent => _tabBar.preferredSize.height;
+  double get maxExtent => _tabBar.preferredSize.height + 24.0; // Increased from 16.0
   @override
-  double get maxExtent => _tabBar.preferredSize.height;
+  double get minExtent => _tabBar.preferredSize.height + 24.0; // Increased from 16.0
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       color: Colors.white,
-      child: _tabBar,
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.only(top: 23.0), // Added top padding
+            child: _tabBar,
+          ),
+          Container(
+            height: 1,
+            color: Colors.grey[300], // Light grey line below tabs
+            margin: EdgeInsets.only(top: 0), // Adjust if needed
+          ),
+        ],
+      ),
     );
   }
 
   @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+  bool shouldRebuild(covariant _SliverAppBarDelegate oldDelegate) {
     return false;
   }
 }
 
 
-// Widget for the Status Tabs
+
 class StatusTabWithImage extends StatelessWidget {
   final String title;
   final String imagePath;
   final int count;
   final double imageTextSpacing;
 
-  StatusTabWithImage({required this.title, required this.imagePath, required this.count, this.imageTextSpacing = 4,});
+  StatusTabWithImage({
+    required this.title,
+    required this.imagePath,
+    required this.count,
+    this.imageTextSpacing = 4,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // Get screen width
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    // Adjust text size based on screen width
+    double fontSize = screenWidth < 600 ? 14 : 18;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Image.asset(imagePath, width: 24, height: 24), // Adjusted image size
-        SizedBox(width: imageTextSpacing), //  Minimized space between image & text
-        Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-        SizedBox(width: 4), // Minimized space before count box
+        Image.asset(
+          imagePath,
+          width: screenWidth < 600 ? 20 : 24,
+          height: screenWidth < 600 ? 20 : 24,
+        ),
+        SizedBox(width: imageTextSpacing),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        SizedBox(width: 4),
         Container(
-          width: 30,
-          height: 22,
+          width: screenWidth < 600 ? 24 : 30,
+          height: screenWidth < 600 ? 18 : 22,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.black54, width: 1),
           ),
-          child: Text("$count", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black54)),
+          child: Text(
+            "$count",
+            style: TextStyle(
+              fontSize: screenWidth < 600 ? 12 : 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.black54,
+            ),
+          ),
         ),
       ],
     );
   }
 }
 
-// Training Card Widget
 class TrainingCard extends StatelessWidget {
   final String status;
 
@@ -252,10 +320,14 @@ class TrainingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get screen width for responsive layout
+    double screenWidth = MediaQuery.of(context).size.width;
+    bool isMobile = screenWidth < 600;
+
     return Card(
-      color: Color(0xfff2f5ec),
+      color: Color(0xFFF2F5EC),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      elevation: 2,
+      elevation: 0,
       margin: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
       child: Padding(
         padding: EdgeInsets.all(12),
@@ -264,61 +336,83 @@ class TrainingCard extends StatelessWidget {
           children: [
             Text(
               "REGULATORY COMPLIANCE IN DEALERSHIP - $status",
-              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18, fontFamily: 'Roboto'),
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: isMobile ? 16 : 18,
+                fontFamily: 'Roboto',
+              ),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 2),
             Row(
               children: [
                 Expanded(
                   child: Text(
                     "Training on local, state, and federal regulations applicable to automotive sales and services...",
-                    style: TextStyle( fontWeight: FontWeight.w300, fontSize: 18, fontFamily: 'Roboto', overflow: TextOverflow.ellipsis),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w300,
+                      fontSize: isMobile ? 14 : 18,
+                      fontFamily: 'Roboto',
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     maxLines: 1,
                   ),
                 ),
-                Icon(Icons.chevron_right, color: Colors.grey, size: 30),
+                Icon(Icons.chevron_right, color: Colors.grey, size: isMobile ? 24 : 30),
               ],
             ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.store_mall_directory, color: Color(0xff407a1d), size: 20),
-                SizedBox(width: 4),
-                Text("Shealey Truck Center", style: TextStyle(
-                  color: Color(0xFF407A1D),
-                  fontSize: 18,
-                  fontFamily: 'Proxima Nova',
-                  fontWeight: FontWeight.w400,
-                )),
-                SizedBox(width: 12),
-                Icon(Icons.person, color: Color(0xff407a1d), size: 20),
-                SizedBox(width: 4),
-                Text("Miguel", style: TextStyle(
-                  color: Color(0xFF407A1D),
-                  fontSize: 18,
-                  fontFamily: 'Proxima Nova',
-                  fontWeight: FontWeight.w400,
-                )),
-                SizedBox(width: 12),
-                Icon(Icons.alarm, color: Color(0xff407a1d), size: 20),
-                SizedBox(width: 4),
-                Text("01/26/2025", style: TextStyle(
-                  color: Color(0xFF407A1D),
-                  fontSize: 18,
-                  fontFamily: 'Proxima Nova',
-                  fontWeight: FontWeight.w400,
-                )),
-              ],
-            ),
+            SizedBox(height: 3), // Updated as requested
+            if (isMobile)
+            // Mobile layout - Wrapped layout
+              Wrap(
+                spacing: 12,
+                runSpacing: 8,
+                children: [
+                  _buildInfoItem(Icons.store_mall_directory, "Shealey Truck Center", isMobile),
+                  _buildInfoItem(Icons.person, "Miguel", isMobile),
+                  _buildInfoItem(Icons.access_time_filled, "01/26/2025", isMobile),
+                ],
+              )
+            else
+            // Tablet layout - Row layout
+              Row(
+                children: [
+                  _buildInfoItem(Icons.store_mall_directory, "Shealey Truck Center", isMobile),
+                  SizedBox(width: 28),
+                  _buildInfoItem(Icons.person, "Miguel", isMobile),
+                  SizedBox(width: 28),
+                  _buildInfoItem(Icons.access_time_filled, "01/26/2025", isMobile),
+                ],
+              ),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildInfoItem(IconData icon, String text, bool isMobile) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: Color(0xFF407A1D), size: isMobile ? 16 : 20),
+        SizedBox(width: 5),
+        Text(
+          text,
+          style: TextStyle(
+            color: Color(0xFF407A1D),
+            fontSize: isMobile ? 14 : 18,
+            fontFamily: 'Proxima Nova',
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ],
+    );
+  }
 }
 
-// Bottom Navigation Widget
 class BottomNavigation extends StatelessWidget {
+  final int selectedIndex;
+  const BottomNavigation({this.selectedIndex = 2});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -326,7 +420,7 @@ class BottomNavigation extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Color(0x1A000000), // 0x1A = 10% opacity of black
+            color: Color(0x1A000000), // 10% opacity black
             blurRadius: 4,
             offset: Offset(0, -2),
           )
@@ -334,32 +428,41 @@ class BottomNavigation extends StatelessWidget {
       ),
       child: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               NavItem(
                 icon: Icons.content_paste_search,
                 label: 'Audits',
-                isSelected: false,
+                isSelected: selectedIndex == 0,
                 onTap: () {
-                  // Handle Audits tap
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => AuditsScreen()),
+                  );
                 },
               ),
               NavItem(
                 icon: Icons.checklist_rounded,
                 label: 'Tasks',
-                isSelected: false,
+                isSelected: selectedIndex == 1,
                 onTap: () {
-                  // Handle Tasks tap
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => TasksScreen()),
+                  );
                 },
               ),
               NavItem(
                 icon: Icons.school,
                 label: 'Training',
-                isSelected: true,
+                isSelected: selectedIndex == 2,
                 onTap: () {
-                  // Handle Training tap
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => SearchScreen()),
+                  );
                 },
               ),
             ],
@@ -370,7 +473,6 @@ class BottomNavigation extends StatelessWidget {
   }
 }
 
-// Individual Navigation Item Widget
 class NavItem extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -393,37 +495,63 @@ class NavItem extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: isSelected ? Color(0xffd7e8cd) : Colors.transparent, // Background color
-              borderRadius: BorderRadius.circular(42), // Rounded corners
+              color: isSelected ? Color(0xffd7e8cd) : Colors.transparent,
+              borderRadius: BorderRadius.circular(30),
               border: isSelected
                   ? Border(
-                left: BorderSide(color: Colors.transparent, width: 14),  // Thicker left border
-                right: BorderSide(color: Colors.transparent, width: 14), // Thicker right border
-                // Normal bottom border
+                left: BorderSide(color: Colors.transparent, width: 14),
+                right: BorderSide(color: Colors.transparent, width: 14),
               )
-                  : Border.all(color: Colors.transparent, width: 0), // No border when not selected
+                  : Border.all(color: Colors.transparent, width: 0),
             ),
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Adjust padding for balance
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 1),
             child: Icon(
               icon,
-              size: 40, // Increased icon size
-              color: isSelected ? Colors.green : Colors.black, // Change color when selected
+              size: 28,
+              color: isSelected ? Color(0xFF407B1E) : Colors.black,
             ),
           ),
-
-
-
           SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(
-              fontSize: 20, // Increased text size
+              fontSize: 16,
               color: isSelected ? Color(0xFF407B1E) : Colors.black,
               fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class AuditsScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Audits"),
+      ),
+      body: Center(
+        child: Text("Audits Page"),
+      ),
+      bottomNavigationBar: BottomNavigation(selectedIndex: 0),
+    );
+  }
+}
+
+class TasksScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Tasks"),
+      ),
+      body: Center(
+        child: Text("Tasks Page"),
+      ),
+      bottomNavigationBar: BottomNavigation(selectedIndex: 1),
     );
   }
 }
