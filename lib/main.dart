@@ -9,9 +9,8 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Set system UI overlay styles.
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Color(0xFCFCF6),
+      statusBarColor: Color(0xFFCFCF6),
       statusBarIconBrightness: Brightness.dark,
       systemNavigationBarColor: Colors.white,
       systemNavigationBarIconBrightness: Brightness.dark,
@@ -19,7 +18,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SearchScreen(), // Training page
+      home: SearchScreen(),
     );
   }
 }
@@ -34,18 +33,54 @@ class _SearchScreenState extends State<SearchScreen>
   late TabController _tabController;
 
   final List<Map<String, dynamic>> statusTabs = [
-    {"title": "Scheduled", "imagePath": "assets/images/scheduled_icon.png", "count": 12},
-    {"title": "In-Progress", "imagePath": "assets/images/inprocess_icon.png", "count": 18},
-    {"title": "Overdue", "imagePath": "assets/images/Overdue_icon.png", "count": 3},
-    {"title": "Failed", "imagePath": "assets/images/failed_icon.png", "count": 5},
-    {"title": "Expired", "imagePath": "assets/images/Expired_icon.png", "count": 5},
-    {"title": "Passed", "imagePath": "assets/images/passed_icon.png", "count": 5},
+    {
+      "title": "Scheduled",
+      "imagePath": "assets/images/scheduled_icon.png",
+      "count": 12,
+    },
+    {
+      "title": "In-Progress",
+      "imagePath": "assets/images/inprocess_icon.png",
+      "count": 18,
+    },
+    {
+      "title": "Overdue",
+      "imagePath": "assets/images/Overdue_icon.png",
+      "count": 3,
+    },
+    {
+      "title": "Failed",
+      "imagePath": "assets/images/failed_icon.png",
+      "count": 5,
+    },
+    {
+      "title": "Expired",
+      "imagePath": "assets/images/Expired_icon.png",
+      "count": 5,
+    },
+    {
+      "title": "Passed",
+      "imagePath": "assets/images/passed_icon.png",
+      "count": 5,
+    },
   ];
+
+  // Use your provided progress values.
+  final Map<String, List<double>> mockProgress = {
+    "In-Progress": [0.25, 0.45, 0.65, 0.15, 0.85],
+    "Overdue": [0.55, 0.75, 0.85, 0.95, 0.65],
+    "Failed": [1.0, 1.0, 1.0, 1.0, 1.0],
+    "Expired": [1.0, 1.0, 1.0, 1.0, 1.0],
+    "Passed": [1.0, 1.0, 1.0, 1.0, 1.0],
+  };
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: statusTabs.length, vsync: this);
+    _tabController.addListener(() {
+      setState(() {}); // Rebuild when tab changes
+    });
   }
 
   @override
@@ -78,13 +113,13 @@ class _SearchScreenState extends State<SearchScreen>
           Icon(Icons.menu, color: Colors.black, size: 25),
           Expanded(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
+              padding: EdgeInsets.symmetric(horizontal: 12),
               child: TextField(
                 decoration: InputDecoration(
                   hintText: "Search Courses",
                   hintStyle: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w400,
                       color: Color(0xFF66656A)),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(vertical: 8),
@@ -106,7 +141,8 @@ class _SearchScreenState extends State<SearchScreen>
               children: [
                 Icon(Icons.add, size: 20, color: Color(0xFF407B1E)),
                 SizedBox(width: 2),
-                Text("Schedule", style: TextStyle(fontSize: 16)),
+                Text("Schedule", style: TextStyle(fontSize: 16
+                )),
               ],
             ),
           ),
@@ -118,19 +154,21 @@ class _SearchScreenState extends State<SearchScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       body: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
             SliverAppBar(
-              expandedHeight: 90.0,
+              expandedHeight: 88.0,
               floating: true,
               pinned: false,
               snap: true,
-              backgroundColor: Color(0xFFCFCF6),
+              backgroundColor: Colors.white,
+              foregroundColor: Color(0xFFCFCF6),
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).padding.top + 15, // Increased top padding
+                    top: MediaQuery.of(context).padding.top + 15,
                     bottom: 8,
                   ),
                   child: Padding(
@@ -140,62 +178,83 @@ class _SearchScreenState extends State<SearchScreen>
                 ),
               ),
             ),
+            // TabBar with a gap on top when scrolling
             SliverPersistentHeader(
               pinned: true,
               delegate: _SliverAppBarDelegate(
                 TabBar(
                   controller: _tabController,
                   isScrollable: true,
-
-                  labelColor: Color(0xFF66656A),
+                  labelColor: Color(0xFF407B1E),
                   unselectedLabelColor: Color(0xFF66656A),
                   indicatorColor: Color(0xFF407B1E),
                   indicatorWeight: 3,
-                  indicatorSize: TabBarIndicatorSize.tab, // Added for better alignment
-                  labelStyle: TextStyle(fontSize: 16), // Added for better mobile scaling
-                  indicatorPadding: EdgeInsets.symmetric(horizontal: 4), // Added for indicator alignment
-                  padding: EdgeInsets.symmetric(horizontal: 16), // Adjusted for mobile
-                  labelPadding: EdgeInsets.symmetric(horizontal: 12), // Adjusted for mobile
-                  tabs: statusTabs.asMap().entries.map((entry) {
-                    int index = entry.key;
-                    var tab = entry.value;
-                    return Tab(
-                      height: 52, // Increased height
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          left: index == 0 ? 0 : 4,
-                          bottom: 4,
-                          top: 4, // Added top padding
-                        ),
-                        child: StatusTabWithImage(
-                          title: tab["title"],
-                          imagePath: tab["imagePath"],
-                          count: tab["count"],
-                          imageTextSpacing: 4,
-                        ),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  labelStyle: TextStyle(fontSize: 16),
+                  indicatorPadding: EdgeInsets.symmetric(horizontal: 4),
+                  padding: EdgeInsets.zero,
+                  labelPadding: EdgeInsets.symmetric(horizontal: 12),
+                  onTap: (index) {
+                    setState(() {});
+                  },
+                  tabs: List.generate(
+                    statusTabs.length,
+                        (index) => Tab(
+                      height: 52,
+                      child: StatusTabWithImage(
+                        title: statusTabs[index]["title"],
+                        imagePath: statusTabs[index]["imagePath"],
+                        count: statusTabs[index]["count"],
+                        isSelected: _tabController.index == index,
                       ),
-                    );
-                  }).toList(),
+                    ),
+                  ),
                 ),
+                gap: innerBoxIsScrolled ? 30 : 5, // Update gap based on scroll state, // gap from top when pinned
               ),
             ),
-
           ];
         },
+        // The ListView now includes the header text inside so it scrolls with the cards.
         body: TabBarView(
           controller: _tabController,
           children: statusTabs.map((tab) {
             return ListView.builder(
-              key: PageStorageKey(tab["title"]),
               padding: EdgeInsets.all(8),
-              itemCount: 28,
-              itemBuilder: (context, index) => TrainingCard(status: tab["title"]),
+              // Increase itemCount by 1 to include the header text as the first item.
+              itemCount: 29,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return Padding(
+                    padding: EdgeInsets.only(left: 16, top: 4, bottom: 2),
+                    child: Text(
+                      "SHEALEY TRUCK CENTER",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF66656A),
+                      ),
+                    ),
+                  );
+                }
+                // For each TrainingCard, determine the progress:
+                double progress = 0.0;
+                if (mockProgress.containsKey(tab["title"])) {
+                  List<double> values = mockProgress[tab["title"]]!;
+                  // Cycle through the list of progress values using (index - 1)
+                  progress = values[(index - 1) % values.length];
+                } else {
+                  // For statuses not in mockProgress (e.g., "Scheduled"), use 0.0.
+                  progress = 0.0;
+                }
+                return TrainingCard(status: tab["title"], progress: progress);
+              },
             );
           }).toList(),
         ),
       ),
       floatingActionButton: Padding(
-        padding: EdgeInsets.only(bottom: 20.0), // Adjust this value as needed
+        padding: EdgeInsets.only(bottom: 25.0),
         child: FloatingActionButton.extended(
           onPressed: () {},
           backgroundColor: Color(0xFF407B1E),
@@ -205,96 +264,78 @@ class _SearchScreenState extends State<SearchScreen>
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
           ),
           icon: Icon(Icons.filter_alt, size: 24),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30)),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-
       bottomNavigationBar: BottomNavigation(selectedIndex: 2),
     );
   }
 }
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  _SliverAppBarDelegate(this._tabBar);
-
   final TabBar _tabBar;
+  final double gap;
+
+  _SliverAppBarDelegate(this._tabBar, {this.gap = 10});
 
   @override
-  double get maxExtent => _tabBar.preferredSize.height + 24.0; // Increased from 16.0
+  double get minExtent => _tabBar.preferredSize.height + gap;
+
   @override
-  double get minExtent => _tabBar.preferredSize.height + 24.0; // Increased from 16.0
+  double get maxExtent => _tabBar.preferredSize.height + gap;
+
+  @override
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+    return true;
+  }
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       color: Colors.white,
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.only(top: 23.0), // Added top padding
-            child: _tabBar,
-          ),
-          Container(
-            height: 1,
-            color: Colors.grey[300], // Light grey line below tabs
-            margin: EdgeInsets.only(top: 0), // Adjust if needed
-          ),
-        ],
-      ),
+      padding: EdgeInsets.only(top: gap), // creates the top gap
+      child: _tabBar,
     );
   }
-
-  @override
-  bool shouldRebuild(covariant _SliverAppBarDelegate oldDelegate) {
-    return false;
-  }
 }
-
-
 
 class StatusTabWithImage extends StatelessWidget {
   final String title;
   final String imagePath;
   final int count;
-  final double imageTextSpacing;
+  final bool isSelected;
 
   StatusTabWithImage({
     required this.title,
     required this.imagePath,
     required this.count,
-    this.imageTextSpacing = 4,
+    required this.isSelected,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Get screen width
-    double screenWidth = MediaQuery.of(context).size.width;
-
-    // Adjust text size based on screen width
-    double fontSize = screenWidth < 600 ? 14 : 18;
-
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Image.asset(
           imagePath,
-          width: screenWidth < 600 ? 20 : 24,
-          height: screenWidth < 600 ? 20 : 24,
+          width: 24,
+          height: 24,
         ),
-        SizedBox(width: imageTextSpacing),
+        SizedBox(width: 8),
         Text(
           title,
           style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w500,
+            fontSize: 18,
+            fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+            color: isSelected ? Colors.black : Color(0xFF66656A),
           ),
         ),
         SizedBox(width: 4),
         Container(
-          width: screenWidth < 600 ? 24 : 30,
-          height: screenWidth < 600 ? 18 : 22,
-          alignment: Alignment.center,
+          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.black54, width: 1),
@@ -302,7 +343,7 @@ class StatusTabWithImage extends StatelessWidget {
           child: Text(
             "$count",
             style: TextStyle(
-              fontSize: screenWidth < 600 ? 12 : 14,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Colors.black54,
             ),
@@ -313,78 +354,142 @@ class StatusTabWithImage extends StatelessWidget {
   }
 }
 
+/// Modified TrainingCard now accepts an optional progress parameter.
 class TrainingCard extends StatelessWidget {
   final String status;
+  final double? progress; // if provided, this value will be used
 
-  TrainingCard({required this.status});
+  TrainingCard({required this.status, this.progress});
+
+  double _getProgress() {
+    if (progress != null) return progress!;
+    switch (status) {
+      case "In-Progress":
+        return 0.45;
+      case "Overdue":
+        return 0.75;
+      case "Failed":
+      case "Expired":
+      case "Passed":
+        return 1.0;
+      default:
+        return 0.0;
+    }
+  }
+
+  Color _getProgressColor() {
+    switch (status) {
+      case "Failed":
+        return Colors.red;
+      case "Overdue":
+        return Colors.orange;
+      case "Passed":
+      case "In-Progress":
+      default:
+        return Color(0xFF407B1E);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Get screen width for responsive layout
     double screenWidth = MediaQuery.of(context).size.width;
     bool isMobile = screenWidth < 600;
+    bool showProgress = status != "Scheduled";
 
     return Card(
       color: Color(0xFFF2F5EC),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 0,
       margin: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-      child: Padding(
-        padding: EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "REGULATORY COMPLIANCE IN DEALERSHIP - $status",
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: isMobile ? 16 : 18,
-                fontFamily: 'Roboto',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (showProgress)
+            Container(
+              width: double.infinity,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
               ),
-            ),
-            SizedBox(height: 2),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    "Training on local, state, and federal regulations applicable to automotive sales and services...",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w300,
-                      fontSize: isMobile ? 14 : 18,
-                      fontFamily: 'Roboto',
-                      overflow: TextOverflow.ellipsis,
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: _getProgress(),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _getProgressColor(),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
                     ),
-                    maxLines: 1,
                   ),
                 ),
-                Icon(Icons.chevron_right, color: Colors.grey, size: isMobile ? 24 : 30),
+              ),
+            ),
+          Padding(
+            padding: EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "REGULATORY COMPLIANCE IN DEALERSHIP",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: isMobile ? 16 : 18,
+                    fontFamily: 'Roboto',
+                  ),
+                ),
+                SizedBox(height: 2),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "Training on local, state, and federal regulations applicable to automotive sales and services...",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w300,
+                          fontSize: isMobile ? 14 : 18,
+                          fontFamily: 'Roboto',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        maxLines: 1,
+                      ),
+                    ),
+                    Icon(Icons.chevron_right,
+                        color: Colors.grey, size: isMobile ? 24 : 30),
+                  ],
+                ),
+                SizedBox(height: 3),
+                if (isMobile)
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    children: [
+                      _buildInfoItem(
+                          Icons.store_mall_directory, "Shealey Truck Center", isMobile),
+                      _buildInfoItem(Icons.person, "Miguel", isMobile),
+                      _buildInfoItem(
+                          Icons.access_time_filled, "01/26/2025", isMobile),
+                    ],
+                  )
+                else
+                  Row(
+                    children: [
+                      _buildInfoItem(
+                          Icons.store_mall_directory, "Shealey Truck Center", isMobile),
+                      SizedBox(width: 28),
+                      _buildInfoItem(Icons.person, "Miguel", isMobile),
+                      SizedBox(width: 28),
+                      _buildInfoItem(
+                          Icons.access_time_filled, "01/26/2025", isMobile),
+                    ],
+                  ),
               ],
             ),
-            SizedBox(height: 3), // Updated as requested
-            if (isMobile)
-            // Mobile layout - Wrapped layout
-              Wrap(
-                spacing: 12,
-                runSpacing: 8,
-                children: [
-                  _buildInfoItem(Icons.store_mall_directory, "Shealey Truck Center", isMobile),
-                  _buildInfoItem(Icons.person, "Miguel", isMobile),
-                  _buildInfoItem(Icons.access_time_filled, "01/26/2025", isMobile),
-                ],
-              )
-            else
-            // Tablet layout - Row layout
-              Row(
-                children: [
-                  _buildInfoItem(Icons.store_mall_directory, "Shealey Truck Center", isMobile),
-                  SizedBox(width: 28),
-                  _buildInfoItem(Icons.person, "Miguel", isMobile),
-                  SizedBox(width: 28),
-                  _buildInfoItem(Icons.access_time_filled, "01/26/2025", isMobile),
-                ],
-              ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -393,12 +498,12 @@ class TrainingCard extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: Color(0xFF407A1D), size: isMobile ? 16 : 20),
+        Icon(icon, color: Color(0xFF407B1D), size: isMobile ? 16 : 20),
         SizedBox(width: 5),
         Text(
           text,
           style: TextStyle(
-            color: Color(0xFF407A1D),
+            color: Color(0xFF407B1D),
             fontSize: isMobile ? 14 : 18,
             fontFamily: 'Proxima Nova',
             fontWeight: FontWeight.w400,
@@ -494,21 +599,26 @@ class NavItem extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
+            margin: EdgeInsets.only(top: 8),
             decoration: BoxDecoration(
               color: isSelected ? Color(0xffd7e8cd) : Colors.transparent,
               borderRadius: BorderRadius.circular(30),
               border: isSelected
                   ? Border(
-                left: BorderSide(color: Colors.transparent, width: 14),
-                right: BorderSide(color: Colors.transparent, width: 14),
+                left: BorderSide(color: Colors.transparent, width: 15),
+                right: BorderSide(color: Colors.transparent, width: 15),
+                top: BorderSide(color: Colors.transparent, width: 1),
+                bottom: BorderSide(color: Colors.transparent, width: 3),
               )
                   : Border.all(color: Colors.transparent, width: 0),
             ),
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 1),
-            child: Icon(
-              icon,
-              size: 28,
-              color: isSelected ? Color(0xFF407B1E) : Colors.black,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(8, 4, 8, 1),
+              child: Icon(
+                icon,
+                size: 28,
+                color: isSelected ? Color(0xFF407B1E) : Colors.black,
+              ),
             ),
           ),
           SizedBox(height: 4),
