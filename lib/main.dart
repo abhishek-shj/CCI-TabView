@@ -1,15 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:math' as math;
+
+// Helper function for clamping double values
+double clampDouble(double x, double min, double max) {
+  return math.max(min, math.min(max, x));
+}
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Color(0xFFCFCF6),
       statusBarIconBrightness: Brightness.dark,
       systemNavigationBarColor: Colors.white,
@@ -18,12 +26,22 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SearchScreen(),
+      home: const SearchScreen(),
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaleFactor: clampDouble(MediaQuery.of(context).textScaleFactor, 0.8, 1.4),
+          ),
+          child: child!,
+        );
+      },
     );
   }
 }
 
 class SearchScreen extends StatefulWidget {
+  const SearchScreen({Key? key}) : super(key: key);
+
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
@@ -65,7 +83,6 @@ class _SearchScreenState extends State<SearchScreen>
     },
   ];
 
-  // Use your provided progress values.
   final Map<String, List<double>> mockProgress = {
     "In-Progress": [0.25, 0.45, 0.65, 0.15, 0.85],
     "Overdue": [0.55, 0.75, 0.85, 0.95, 0.65],
@@ -79,7 +96,7 @@ class _SearchScreenState extends State<SearchScreen>
     super.initState();
     _tabController = TabController(length: statusTabs.length, vsync: this);
     _tabController.addListener(() {
-      setState(() {}); // Rebuild when tab changes
+      setState(() {});
     });
   }
 
@@ -89,40 +106,43 @@ class _SearchScreenState extends State<SearchScreen>
     super.dispose();
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(bool isTablet) {
     return Container(
-      height: 50,
-      padding: EdgeInsets.symmetric(horizontal: 17),
+      height: isTablet ? 50 : 40,
+      padding: EdgeInsets.symmetric(horizontal: isTablet ? 20 : 13),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(42),
-        boxShadow: [
+        borderRadius: BorderRadius.circular(isTablet ? 50 : 42),
+        boxShadow: const [
           BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, 0.07),
-              offset: Offset(0, 4),
-              blurRadius: 4),
+            color: Color.fromRGBO(0, 0, 0, 0.07),
+            offset: Offset(0, 4),
+            blurRadius: 4,
+          ),
           BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, 0.32),
-              offset: Offset(0, 0.75),
-              blurRadius: 2),
+            color: Color.fromRGBO(0, 0, 0, 0.32),
+            offset: Offset(0, 0.75),
+            blurRadius: 2,
+          ),
         ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(Icons.menu, color: Colors.black, size: 25),
+          Icon(Icons.menu, color: Colors.black, size: isTablet ? 30 : 25),
           Expanded(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12),
+              padding: EdgeInsets.symmetric(horizontal: isTablet ? 16 : 12),
               child: TextField(
                 decoration: InputDecoration(
                   hintText: "Search Courses",
                   hintStyle: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFF66656A)),
+                    fontSize: isTablet ? 18 : 16,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xFF66656A),
+                  ),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 8),
+                  contentPadding: EdgeInsets.symmetric(vertical: isTablet ? 12 : 8),
                 ),
               ),
             ),
@@ -130,19 +150,25 @@ class _SearchScreenState extends State<SearchScreen>
           ElevatedButton(
             onPressed: () {},
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFFD7E8CD),
-              foregroundColor: Color(0xFF407B1E),
+              backgroundColor: const Color(0xFFD7E8CD),
+              foregroundColor: const Color(0xFF407B1E),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18)),
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                borderRadius: BorderRadius.circular(isTablet ? 18 : 15),
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: isTablet ? 12 : 9,
+                vertical: isTablet ? 7 : 5,
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.add, size: 20, color: Color(0xFF407B1E)),
-                SizedBox(width: 2),
-                Text("Schedule", style: TextStyle(fontSize: 16
-                )),
+                Icon(Icons.add, size: isTablet ? 24 : 20, color: const Color(0xFF407B1E)),
+                const SizedBox(width: 2),
+                Text(
+                  "Schedule",
+                  style: TextStyle(fontSize: isTablet ? 18 : 16),
+                ),
               ],
             ),
           ),
@@ -151,125 +177,168 @@ class _SearchScreenState extends State<SearchScreen>
     );
   }
 
+  TabBar _buildAdaptiveTabBar(bool isTablet) {
+    return TabBar(
+      controller: _tabController,
+      isScrollable: true,
+      labelColor: const Color(0xFF407B1E),
+      unselectedLabelColor: const Color(0xFF66656A),
+      indicatorColor: const Color(0xFF407B1E),
+      indicatorWeight: isTablet ? 4 : 3,
+      indicatorSize: TabBarIndicatorSize.tab,
+      labelStyle: TextStyle(fontSize: isTablet ? 18 : 16),
+      padding: EdgeInsets.zero,
+      labelPadding: EdgeInsets.only(left: 0, right: isTablet ? 16 : 12),
+      indicatorPadding: EdgeInsets.symmetric(horizontal: isTablet ? 6 : 4),
+      onTap: (index) {
+        setState(() {});
+      },
+      tabs: List.generate(
+        statusTabs.length,
+            (index) => Tab(
+          height: isTablet ? 49 : 41,
+          child: StatusTabWithImage(
+            title: statusTabs[index]["title"],
+            imagePath: statusTabs[index]["imagePath"],
+            count: statusTabs[index]["count"],
+            isSelected: _tabController.index == index,
+            isTablet: isTablet,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAdaptiveListView(
+      Map<String, dynamic> tab,
+      bool isTablet,
+      double cardWidth,
+      double horizontalPadding,
+      ) {
+    return ListView.builder(
+      padding: EdgeInsets.all(isTablet ? 12 : 8),
+      itemCount: 29,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Padding(
+            padding: EdgeInsets.only(
+              left: isTablet ? 24 : 16,
+              // top: isTablet ? 0 : 4,
+              // bottom: isTablet ? 0 : 2,
+            ),
+            child: Text(
+              "SHEALEY TRUCK CENTER",
+              style: TextStyle(
+                fontSize: isTablet ? 16 : 14,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF66656A),
+              ),
+            ),
+          );
+        }
+
+        double progress = 0.0;
+        if (mockProgress.containsKey(tab["title"])) {
+          List<double> values = mockProgress[tab["title"]]!;
+          progress = values[(index - 1) % values.length];
+        }
+
+        return TrainingCard(
+          status: tab["title"],
+          progress: progress,
+          isTablet: isTablet,
+          cardWidth: cardWidth,
+        );
+      },
+    );
+  }
+
+  Widget _buildAdaptiveFloatingActionButton(bool isTablet) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: isTablet ? 30.0 : 20.0),
+      child: FloatingActionButton.extended(
+        onPressed: () {
+
+        },
+        backgroundColor: const Color(0xFF407B1E),
+        foregroundColor: Colors.white,
+        label: Text(
+          "Filter",
+          style: TextStyle(
+            fontSize: isTablet ? 18 : 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        icon: Icon(Icons.filter_alt, size: isTablet ? 28 : 24),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(isTablet ? 35 : 30),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final size = MediaQuery.of(context).size;
+    final isLandscape = size.width > size.height;
+    final isTablet = size.width >= 600;
 
+    final horizontalPadding = size.width * 0.05;
+    final cardWidth = isTablet
+        ? (isLandscape ? size.width * 0.4 : size.width * 0.8)
+        : size.width * 0.9;
+
+    return Scaffold(
       body: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
             SliverAppBar(
-              expandedHeight: 88.0,
+              expandedHeight: isTablet ? 99.0 : 77.0,
               floating: true,
               pinned: false,
               snap: true,
               backgroundColor: Colors.white,
-              foregroundColor: Color(0xFFCFCF6),
+              foregroundColor: const Color(0xFFCFCF6),
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).padding.top + 15,
-                    bottom: 8,
+                    top: MediaQuery.of(context).padding.top + (isTablet ? 25 : 15),
+                    bottom: isTablet ? 12 : 8,
                   ),
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 21),
-                    child: _buildSearchBar(),
+                    padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                    child: _buildSearchBar(isTablet),
                   ),
                 ),
               ),
             ),
-            // TabBar with a gap on top when scrolling
             SliverPersistentHeader(
               pinned: true,
               delegate: _SliverAppBarDelegate(
-                TabBar(
-                  controller: _tabController,
-                  isScrollable: true,
-                  labelColor: Color(0xFF407B1E),
-                  unselectedLabelColor: Color(0xFF66656A),
-                  indicatorColor: Color(0xFF407B1E),
-                  indicatorWeight: 3,
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  labelStyle: TextStyle(fontSize: 16),
-                  indicatorPadding: EdgeInsets.symmetric(horizontal: 4),
-                  padding: EdgeInsets.zero,
-                  labelPadding: EdgeInsets.symmetric(horizontal: 12),
-                  onTap: (index) {
-                    setState(() {});
-                  },
-                  tabs: List.generate(
-                    statusTabs.length,
-                        (index) => Tab(
-                      height: 52,
-                      child: StatusTabWithImage(
-                        title: statusTabs[index]["title"],
-                        imagePath: statusTabs[index]["imagePath"],
-                        count: statusTabs[index]["count"],
-                        isSelected: _tabController.index == index,
-                      ),
-                    ),
-                  ),
-                ),
-                gap: innerBoxIsScrolled ? 30 : 5, // Update gap based on scroll state, // gap from top when pinned
+                _buildAdaptiveTabBar(isTablet),
+                gap: innerBoxIsScrolled ? (isTablet ? 35 : 25) : (isTablet ? 8 : 5),
               ),
             ),
           ];
         },
-        // The ListView now includes the header text inside so it scrolls with the cards.
         body: TabBarView(
           controller: _tabController,
           children: statusTabs.map((tab) {
-            return ListView.builder(
-              padding: EdgeInsets.all(8),
-              // Increase itemCount by 1 to include the header text as the first item.
-              itemCount: 29,
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return Padding(
-                    padding: EdgeInsets.only(left: 16, top: 4, bottom: 2),
-                    child: Text(
-                      "SHEALEY TRUCK CENTER",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF66656A),
-                      ),
-                    ),
-                  );
-                }
-                // For each TrainingCard, determine the progress:
-                double progress = 0.0;
-                if (mockProgress.containsKey(tab["title"])) {
-                  List<double> values = mockProgress[tab["title"]]!;
-                  // Cycle through the list of progress values using (index - 1)
-                  progress = values[(index - 1) % values.length];
-                } else {
-                  // For statuses not in mockProgress (e.g., "Scheduled"), use 0.0.
-                  progress = 0.0;
-                }
-                return TrainingCard(status: tab["title"], progress: progress);
-              },
+            return _buildAdaptiveListView(
+              tab,
+              isTablet,
+              cardWidth,
+              horizontalPadding,
             );
           }).toList(),
         ),
       ),
-      floatingActionButton: Padding(
-        padding: EdgeInsets.only(bottom: 25.0),
-        child: FloatingActionButton.extended(
-          onPressed: () {},
-          backgroundColor: Color(0xFF407B1E),
-          foregroundColor: Colors.white,
-          label: Text(
-            "Filter",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-          ),
-          icon: Icon(Icons.filter_alt, size: 24),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30)),
-        ),
-      ),
+      floatingActionButton: _buildAdaptiveFloatingActionButton(isTablet),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: BottomNavigation(selectedIndex: 2),
+      bottomNavigationBar: BottomNavigation(
+        selectedIndex: 2,
+        isTablet: isTablet,
+      ),
     );
   }
 }
@@ -294,25 +363,43 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
+      height: maxExtent,
       color: Colors.white,
-      padding: EdgeInsets.only(top: gap), // creates the top gap
-      child: _tabBar,
+      child: Stack(
+        children: [
+          Positioned(
+            top: gap,
+            left: 0,
+            right: 0,
+            child: MediaQuery.removePadding(
+              context: context,
+              removeLeft: true,
+              child: Transform.translate(
+                offset: const Offset(-18, 0),
+                child: _tabBar,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
-
 class StatusTabWithImage extends StatelessWidget {
   final String title;
   final String imagePath;
   final int count;
   final bool isSelected;
+  final bool isTablet;
 
-  StatusTabWithImage({
+  const StatusTabWithImage({
+    Key? key,
     required this.title,
     required this.imagePath,
     required this.count,
     required this.isSelected,
-  });
+    required this.isTablet,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -321,29 +408,32 @@ class StatusTabWithImage extends StatelessWidget {
       children: [
         Image.asset(
           imagePath,
-          width: 24,
-          height: 24,
+          width: isTablet ? 28 : 24,
+          height: isTablet ? 28 : 24,
         ),
-        SizedBox(width: 8),
+        SizedBox(width: isTablet ? 10 : 8),
         Text(
           title,
           style: TextStyle(
-            fontSize: 18,
+            fontSize: isTablet ? 18 : 16,
             fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
-            color: isSelected ? Colors.black : Color(0xFF66656A),
+            color: isSelected ? Colors.black : const Color(0xFF66656A),
           ),
         ),
-        SizedBox(width: 4),
+        SizedBox(width: isTablet ? 6 : 4),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          padding: EdgeInsets.symmetric(
+            horizontal: isTablet ? 8 : 6,
+            vertical: isTablet ? 3 : 2,
+          ),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(isTablet ? 14 : 12),
             border: Border.all(color: Colors.black54, width: 1),
           ),
           child: Text(
             "$count",
             style: TextStyle(
-              fontSize: 14,
+              fontSize: isTablet ? 14 : 12,
               fontWeight: FontWeight.w500,
               color: Colors.black54,
             ),
@@ -354,12 +444,18 @@ class StatusTabWithImage extends StatelessWidget {
   }
 }
 
-/// Modified TrainingCard now accepts an optional progress parameter.
 class TrainingCard extends StatelessWidget {
   final String status;
-  final double? progress; // if provided, this value will be used
+  final double? progress;
+  final bool isTablet;
+  final double cardWidth;
 
-  TrainingCard({required this.status, this.progress});
+  const TrainingCard({
+    required this.status,
+    this.progress,
+    required this.isTablet,
+    required this.cardWidth,
+  });
 
   double _getProgress() {
     if (progress != null) return progress!;
@@ -392,119 +488,130 @@ class TrainingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    bool isMobile = screenWidth < 600;
     bool showProgress = status != "Scheduled";
 
-    return Card(
-      color: Color(0xFFF2F5EC),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      elevation: 0,
-      margin: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (showProgress)
-            Container(
-              width: double.infinity,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-              ),
-              child: FractionallySizedBox(
-                alignment: Alignment.centerLeft,
-                widthFactor: _getProgress(),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: _getProgressColor(),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
+    return Container(
+      width: cardWidth,
+      child: Card(
+        color: Color(0xFFF2F5EC),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(isTablet ? 24 : 20),
+        ),
+        elevation: 0,
+        margin: EdgeInsets.symmetric(
+          vertical: isTablet ? 8 : 6,
+          horizontal: isTablet ? 10 : 8,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (showProgress)
+              Container(
+                width: double.infinity,
+                height: isTablet ? 6 : 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(isTablet ? 24 : 20),
+                    topRight: Radius.circular(isTablet ? 24 : 20),
                   ),
                 ),
-              ),
-            ),
-          Padding(
-            padding: EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "REGULATORY COMPLIANCE IN DEALERSHIP",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: isMobile ? 16 : 18,
-                    fontFamily: 'Roboto',
-                  ),
-                ),
-                SizedBox(height: 2),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "Training on local, state, and federal regulations applicable to automotive sales and services...",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w300,
-                          fontSize: isMobile ? 14 : 18,
-                          fontFamily: 'Roboto',
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        maxLines: 1,
+                child: FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: _getProgress(),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: _getProgressColor(),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(isTablet ? 24 : 20),
+                        topRight: Radius.circular(isTablet ? 24 : 20),
                       ),
                     ),
-                    Icon(Icons.chevron_right,
-                        color: Colors.grey, size: isMobile ? 24 : 30),
-                  ],
+                  ),
                 ),
-                SizedBox(height: 3),
-                if (isMobile)
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 8,
-                    children: [
-                      _buildInfoItem(
-                          Icons.store_mall_directory, "Shealey Truck Center", isMobile),
-                      _buildInfoItem(Icons.person, "Miguel", isMobile),
-                      _buildInfoItem(
-                          Icons.access_time_filled, "01/26/2025", isMobile),
-                    ],
-                  )
-                else
+              ),
+            Padding(
+              padding: EdgeInsets.all(isTablet ? 19 : 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "REGULATORY COMPLIANCE IN DEALERSHIP",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: isTablet ? 18 : 16,
+                      fontFamily: 'Roboto',
+                    ),
+                  ),
+                  SizedBox(height: isTablet ? 4 : 2),
                   Row(
                     children: [
-                      _buildInfoItem(
-                          Icons.store_mall_directory, "Shealey Truck Center", isMobile),
-                      SizedBox(width: 28),
-                      _buildInfoItem(Icons.person, "Miguel", isMobile),
-                      SizedBox(width: 28),
-                      _buildInfoItem(
-                          Icons.access_time_filled, "01/26/2025", isMobile),
+                      Expanded(
+                        child: Text(
+                          "Training on local, state, and federal regulations applicable to automotive sales and services...",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w300,
+                            fontSize: isTablet ? 18 : 14,
+                            fontFamily: 'Roboto',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          maxLines: 1,
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right,
+                        color: Colors.grey,
+                        size: isTablet ? 32 : 24,
+                      ),
                     ],
                   ),
-              ],
+                  SizedBox(height: isTablet ? 6 : 3),
+                  _buildInfoSection(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildInfoItem(IconData icon, String text, bool isMobile) {
+  Widget _buildInfoSection() {
+    return Wrap(
+      spacing: isTablet ? 36 : 30,
+      runSpacing: isTablet ? 12 : 8,
+      children: [
+        _buildInfoItem(
+          Icons.store_mall_directory,
+          "Shealey Truck Center",
+        ),
+        _buildInfoItem(
+          Icons.person,
+          "Miguel",
+        ),
+        _buildInfoItem(
+          Icons.access_time_filled,
+          "01/26/2025",
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoItem(IconData icon, String text) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: Color(0xFF407B1D), size: isMobile ? 16 : 20),
-        SizedBox(width: 5),
+        Icon(
+          icon,
+          color: Color(0xFF407B1D),
+          size: isTablet ? 20 : 16,
+        ),
+        SizedBox(width: isTablet ? 7 : 5),
         Text(
           text,
           style: TextStyle(
             color: Color(0xFF407B1D),
-            fontSize: isMobile ? 14 : 18,
+            fontSize: isTablet ? 18 : 14,
             fontFamily: 'Proxima Nova',
             fontWeight: FontWeight.w400,
           ),
@@ -516,7 +623,12 @@ class TrainingCard extends StatelessWidget {
 
 class BottomNavigation extends StatelessWidget {
   final int selectedIndex;
-  const BottomNavigation({this.selectedIndex = 2});
+  final bool isTablet;
+
+  const BottomNavigation({
+    this.selectedIndex = 2,
+    required this.isTablet,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -525,15 +637,18 @@ class BottomNavigation extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Color(0x1A000000), // 10% opacity black
+            color: Color(0x1A000000),
             blurRadius: 4,
             offset: Offset(0, -2),
-          )
+          ),
         ],
       ),
       child: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          padding: EdgeInsets.symmetric(
+            horizontal: isTablet ? 24 : 16,
+            // vertical: isTablet ? 0 : 4,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -541,6 +656,7 @@ class BottomNavigation extends StatelessWidget {
                 icon: Icons.content_paste_search,
                 label: 'Audits',
                 isSelected: selectedIndex == 0,
+                isTablet: isTablet,
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
@@ -552,6 +668,7 @@ class BottomNavigation extends StatelessWidget {
                 icon: Icons.checklist_rounded,
                 label: 'Tasks',
                 isSelected: selectedIndex == 1,
+                isTablet: isTablet,
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
@@ -563,6 +680,7 @@ class BottomNavigation extends StatelessWidget {
                 icon: Icons.school,
                 label: 'Training',
                 isSelected: selectedIndex == 2,
+                isTablet: isTablet,
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
@@ -582,6 +700,7 @@ class NavItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool isSelected;
+  final bool isTablet;
   final VoidCallback onTap;
 
   const NavItem({
@@ -589,43 +708,50 @@ class NavItem extends StatelessWidget {
     required this.label,
     required this.isSelected,
     required this.onTap,
+    required this.isTablet,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            margin: EdgeInsets.only(top: 8),
+            margin: EdgeInsets.only(top: isTablet ? 12 : 8),
             decoration: BoxDecoration(
               color: isSelected ? Color(0xffd7e8cd) : Colors.transparent,
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(isTablet ? 35 : 30),
               border: isSelected
                   ? Border(
-                left: BorderSide(color: Colors.transparent, width: 15),
-                right: BorderSide(color: Colors.transparent, width: 15),
+                left: BorderSide(color: Colors.transparent, width: isTablet ? 18 : 15),
+                right: BorderSide(color: Colors.transparent, width: isTablet ? 18 : 15),
                 top: BorderSide(color: Colors.transparent, width: 1),
                 bottom: BorderSide(color: Colors.transparent, width: 3),
               )
                   : Border.all(color: Colors.transparent, width: 0),
             ),
             child: Padding(
-              padding: EdgeInsets.fromLTRB(8, 4, 8, 1),
+              padding: EdgeInsets.fromLTRB(
+                isTablet ? 10 : 8,
+                isTablet ? 6 : 4,
+                isTablet ? 10 : 8,
+                1,
+              ),
               child: Icon(
                 icon,
-                size: 28,
+                size: isTablet ? 32 : 28,
                 color: isSelected ? Color(0xFF407B1E) : Colors.black,
               ),
             ),
           ),
-          SizedBox(height: 4),
+          SizedBox(height: isTablet ? 6 : 4),
           Text(
             label,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: isTablet ? 16 : 14,
               color: isSelected ? Color(0xFF407B1E) : Colors.black,
               fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
             ),
@@ -637,31 +763,65 @@ class NavItem extends StatelessWidget {
 }
 
 class AuditsScreen extends StatelessWidget {
+  const AuditsScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Audits"),
+        title: Text(
+          "Audits",
+          style: TextStyle(
+            fontSize: isTablet ? 24 : 20,
+          ),
+        ),
       ),
       body: Center(
-        child: Text("Audits Page"),
+        child: Text(
+          "Audits Page",
+          style: TextStyle(
+            fontSize: isTablet ? 20 : 16,
+          ),
+        ),
       ),
-      bottomNavigationBar: BottomNavigation(selectedIndex: 0),
+      bottomNavigationBar: BottomNavigation(
+        selectedIndex: 0,
+        isTablet: isTablet,
+      ),
     );
   }
 }
 
 class TasksScreen extends StatelessWidget {
+  const TasksScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Tasks"),
+        title: Text(
+          "Tasks",
+          style: TextStyle(
+            fontSize: isTablet ? 24 : 20,
+          ),
+        ),
       ),
       body: Center(
-        child: Text("Tasks Page"),
+        child: Text(
+          "Tasks Page",
+          style: TextStyle(
+            fontSize: isTablet ? 20 : 16,
+          ),
+        ),
       ),
-      bottomNavigationBar: BottomNavigation(selectedIndex: 1),
+      bottomNavigationBar: BottomNavigation(
+        selectedIndex: 1,
+        isTablet: isTablet,
+      ),
     );
   }
 }
