@@ -254,28 +254,195 @@ class _SearchScreenState extends State<SearchScreen>
   }
 
   Widget _buildAdaptiveFloatingActionButton(bool isTablet) {
+    // Determine if desktop based on screen width
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth >= 1200;
+
     return Padding(
-      padding: EdgeInsets.only(bottom: isTablet ? 30.0 : 20.0),
+      padding: EdgeInsets.only(
+        bottom: isDesktop ? 40.0 : (isTablet ? 30.0 : 20.0),
+        right: isDesktop ? 40.0 : 0.0,
+      ),
       child: FloatingActionButton.extended(
         onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            constraints: BoxConstraints(
+              maxWidth: isDesktop ? screenWidth * 0.4 : double.infinity,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(isDesktop ? 30 : 20),
+              ),
+            ),
+            builder: (BuildContext context) {
+              return StatefulBuilder(
+                builder: (context, setState) {
+                  return SingleChildScrollView(
+                    child: Container(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              vertical: isDesktop ? 24 : (isTablet ? 20 : 16),
+                              horizontal: isDesktop ? 30 : 20,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    InkWell(
+                                      onTap: () => Navigator.pop(context),
+                                      child: Icon(
+                                        Icons.close,
+                                        size: isDesktop ? 26 : null,
+                                      ),
+                                    ),
+                                    SizedBox(width: isDesktop ? 16 : 12),
+                                    Text(
+                                      'Add Filters',
+                                      style: TextStyle(
+                                        fontSize: isDesktop ? 20 : (isTablet ? 18 : 16),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    // Add reset logic here
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: const Color(0xFF407B1E), // Text color
+                                    textStyle: TextStyle(fontSize: isDesktop ? 16 : 14),
+                                  ),
+                                  child: const Text('Reset Filters'),
+                                ),
 
+                              ],
+                            ),
+                          ),
+                          const Divider(height: 1),
+                          _buildFilterItem('Company', 'Shealey Truck Center', context, isTablet, isDesktop),
+                          _buildFilterItem('Dealerships', 'Shealey Truck Center Columbia', context, isTablet, isDesktop),
+                          _buildFilterItem('Department', 'All Departments', context, isTablet, isDesktop),
+                          _buildFilterItem('User', 'All Users', context, isTablet, isDesktop),
+                          _buildFilterItem('Date Range', '', context, isTablet, isDesktop),
+                          SizedBox(height: isDesktop ? 30 : 20),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isDesktop ? 24 : 16,
+                              vertical: isDesktop ? 16 : 10,
+                            ),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                // Implement filter application logic
+                                Navigator.pop(context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF407B1E),
+                                minimumSize: Size(
+                                    double.infinity,
+                                    isDesktop ? 60 : (isTablet ? 55 : 50)
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      isDesktop ? 10 : 8
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                'Apply Filters',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: isDesktop ? 18 : 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          );
         },
         backgroundColor: const Color(0xFF407B1E),
         foregroundColor: Colors.white,
         label: Text(
           "Filter",
           style: TextStyle(
-            fontSize: isTablet ? 18 : 16,
+            fontSize: isDesktop ? 20 : (isTablet ? 18 : 16),
             fontWeight: FontWeight.w500,
           ),
         ),
-        icon: Icon(Icons.filter_alt, size: isTablet ? 28 : 24),
+        icon: Icon(
+            Icons.filter_alt,
+            size: isDesktop ? 32 : (isTablet ? 28 : 24)
+        ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(isTablet ? 35 : 30),
+          borderRadius: BorderRadius.circular(
+              isDesktop ? 40 : (isTablet ? 35 : 30)
+          ),
         ),
       ),
     );
   }
+
+// Updated helper function to handle different screen sizes
+  Widget _buildFilterItem(String title, String value, BuildContext context, [bool isTablet = false, bool isDesktop = false]) {
+    return InkWell(
+      onTap: () {
+        // Navigate to specific filter selection
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: isDesktop ? 30 : 20,
+          vertical: isDesktop ? 20 : 16,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: isDesktop ? 17 : 15,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            Row(
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: isDesktop ? 16 : 14,
+                  ),
+                ),
+                SizedBox(width: isDesktop ? 12 : 8),
+                Icon(
+                  Icons.chevron_right,
+                  color: Colors.grey,
+                  size: isDesktop ? 24 : null,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+// End of helper function
+
+
 
   @override
   Widget build(BuildContext context) {
