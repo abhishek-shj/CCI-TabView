@@ -8,6 +8,25 @@ double clampDouble(double x, double min, double max) {
   return math.max(min, math.min(max, x));
 }
 
+// Data model for training cards
+class TrainingData {
+  final String title;
+  final String message;
+  final String companyName;
+  final String pocName;
+  final String date;
+  final String status;
+
+  TrainingData({
+    required this.title,
+    required this.message,
+    required this.companyName,
+    required this.pocName,
+    required this.date,
+    required this.status,
+  });
+}
+
 void main() {
   runApp(const MyApp());
 }
@@ -43,7 +62,7 @@ class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
 
   @override
-  _SearchScreenState createState() => _SearchScreenState();
+  State<SearchScreen> createState() => _SearchScreenState();
 }
 
 class _SearchScreenState extends State<SearchScreen>
@@ -54,41 +73,201 @@ class _SearchScreenState extends State<SearchScreen>
     {
       "title": "Scheduled",
       "imagePath": "assets/images/scheduled_icon.png",
-      "count": 12,
+      "count": 3,
     },
     {
       "title": "In-Progress",
       "imagePath": "assets/images/inprocess_icon.png",
-      "count": 18,
+      "count": 4,
     },
     {
       "title": "Overdue",
       "imagePath": "assets/images/Overdue_icon.png",
-      "count": 3,
+      "count": 2,
     },
     {
       "title": "Failed",
       "imagePath": "assets/images/failed_icon.png",
-      "count": 5,
+      "count": 3,
     },
     {
       "title": "Expired",
       "imagePath": "assets/images/Expired_icon.png",
-      "count": 5,
+      "count": 2,
     },
     {
       "title": "Passed",
       "imagePath": "assets/images/passed_icon.png",
-      "count": 5,
+      "count": 4,
     },
   ];
 
+  final Map<String, List<TrainingData>> trainingDataByStatus = {
+    "Scheduled": [
+      TrainingData(
+        title: "NEW VEHICLE TECHNOLOGY TRAINING",
+        message: "Overview of latest automotive technologies and systems...",
+        companyName: "Shealey Truck Center",
+        pocName: "Robert",
+        date: "03/15/2025",
+        status: "Scheduled",
+      ),
+      TrainingData(
+        title: "ELECTRIC VEHICLE MAINTENANCE",
+        message: "Comprehensive training on EV systems and servicing...",
+        companyName: "Shealey Truck Center",
+        pocName: "Lisa",
+        date: "03/20/2025",
+        status: "Scheduled",
+      ),
+      TrainingData(
+        title: "DIAGNOSTIC TOOLS WORKSHOP",
+        message: "Hands-on training with new diagnostic equipment...",
+        companyName: "Shealey Truck Center",
+        pocName: "Michael",
+        date: "03/25/2025",
+        status: "Scheduled",
+      ),
+    ],
+    "In-Progress": [
+      TrainingData(
+        title: "REGULATORY COMPLIANCE IN DEALERSHIP",
+        message: "Training on local, state, and federal regulations...",
+        companyName: "Shealey Truck Center",
+        pocName: "Miguel",
+        date: "02/28/2025",
+        status: "In-Progress",
+      ),
+      TrainingData(
+        title: "SAFETY PROTOCOLS AND PROCEDURES",
+        message: "Comprehensive training on workplace safety standards...",
+        companyName: "Shealey Truck Center",
+        pocName: "Sarah",
+        date: "02/25/2025",
+        status: "In-Progress",
+      ),
+      TrainingData(
+        title: "CUSTOMER SERVICE EXCELLENCE",
+        message: "Interactive workshop on effective communication...",
+        companyName: "Shealey Truck Center",
+        pocName: "James",
+        date: "02/20/2025",
+        status: "In-Progress",
+      ),
+      TrainingData(
+        title: "INVENTORY MANAGEMENT SYSTEMS",
+        message: "Hands-on training for using the new inventory tracking software...",
+        companyName: "Shealey Truck Center",
+        pocName: "Elena",
+        date: "02/15/2025",
+        status: "In-Progress",
+      ),
+    ],
+    "Overdue": [
+      TrainingData(
+        title: "ANNUAL SAFETY CERTIFICATION",
+        message: "Mandatory safety certification renewal...",
+        companyName: "Shealey Truck Center",
+        pocName: "Thomas",
+        date: "01/15/2025",
+        status: "Overdue",
+      ),
+      TrainingData(
+        title: "HAZMAT HANDLING PROCEDURES",
+        message: "Required training for hazardous materials handling...",
+        companyName: "Shealey Truck Center",
+        pocName: "Amanda",
+        date: "01/10/2025",
+        status: "Overdue",
+      ),
+    ],
+    "Failed": [
+      TrainingData(
+        title: "ADVANCED DIAGNOSTICS CERTIFICATION",
+        message: "Certification program for advanced diagnostic techniques...",
+        companyName: "Shealey Truck Center",
+        pocName: "Chris",
+        date: "01/05/2025",
+        status: "Failed",
+      ),
+      TrainingData(
+        title: "PARTS INVENTORY MANAGEMENT",
+        message: "Training on new parts management system...",
+        companyName: "Shealey Truck Center",
+        pocName: "Patricia",
+        date: "01/02/2025",
+        status: "Failed",
+      ),
+      TrainingData(
+        title: "CUSTOMER DATA PROTECTION",
+        message: "Training on privacy regulations and data handling...",
+        companyName: "Shealey Truck Center",
+        pocName: "Kevin",
+        date: "12/28/2024",
+        status: "Failed",
+      ),
+    ],
+    "Expired": [
+      TrainingData(
+        title: "SEASONAL MAINTENANCE PROCEDURES",
+        message: "Training on seasonal vehicle maintenance requirements...",
+        companyName: "Shealey Truck Center",
+        pocName: "Nancy",
+        date: "12/15/2024",
+        status: "Expired",
+      ),
+      TrainingData(
+        title: "WARRANTY PROCESSING",
+        message: "Training on warranty claim procedures...",
+        companyName: "Shealey Truck Center",
+        pocName: "Paul",
+        date: "12/10/2024",
+        status: "Expired",
+      ),
+    ],
+    "Passed": [
+      TrainingData(
+        title: "BASIC VEHICLE MAINTENANCE",
+        message: "Fundamental vehicle maintenance procedures...",
+        companyName: "Shealey Truck Center",
+        pocName: "George",
+        date: "02/01/2025",
+        status: "Passed",
+      ),
+      TrainingData(
+        title: "SALES TECHNIQUES AND STRATEGIES",
+        message: "Advanced training on consultative selling approaches...",
+        companyName: "Shealey Truck Center",
+        pocName: "Maria",
+        date: "01/25/2025",
+        status: "Passed",
+      ),
+      TrainingData(
+        title: "CUSTOMER RELATIONSHIP MANAGEMENT",
+        message: "Training on CRM system and customer retention...",
+        companyName: "Shealey Truck Center",
+        pocName: "Daniel",
+        date: "01/20/2025",
+        status: "Passed",
+      ),
+      TrainingData(
+        title: "DEALERSHIP MANAGEMENT SYSTEM",
+        message: "Overview of dealership management software...",
+        companyName: "Shealey Truck Center",
+        pocName: "Sophie",
+        date: "01/15/2025",
+        status: "Passed",
+      ),
+    ],
+  };
+
+
   final Map<String, List<double>> mockProgress = {
-    "In-Progress": [0.25, 0.45, 0.65, 0.15, 0.85],
-    "Overdue": [0.55, 0.75, 0.85, 0.95, 0.65],
-    "Failed": [1.0, 1.0, 1.0, 1.0, 1.0],
-    "Expired": [1.0, 1.0, 1.0, 1.0, 1.0],
-    "Passed": [1.0, 1.0, 1.0, 1.0, 1.0],
+    "In-Progress": [0.25, 0.45, 0.65, 0.85],
+    "Overdue": [0.75, 0.85],
+    "Failed": [1.0, 1.0, 1.0],
+    "Expired": [1.0, 1.0],
+    "Passed": [1.0, 1.0, 1.0, 1.0],
   };
 
   @override
@@ -163,7 +342,7 @@ class _SearchScreenState extends State<SearchScreen>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.add, size: isTablet ? 24 : 20, color: const Color(0xFF407B1E)),
+                Icon(Icons.add, size: isTablet ? 24 : 20),
                 const SizedBox(width: 2),
                 Text(
                   "Schedule",
@@ -215,16 +394,17 @@ class _SearchScreenState extends State<SearchScreen>
       double cardWidth,
       double horizontalPadding,
       ) {
+    final status = tab["title"];
+    final trainingList = trainingDataByStatus[status] ?? [];
+
     return ListView.builder(
       padding: EdgeInsets.all(isTablet ? 12 : 8),
-      itemCount: 29,
+      itemCount: trainingList.length + 1,
       itemBuilder: (context, index) {
         if (index == 0) {
           return Padding(
             padding: EdgeInsets.only(
               left: isTablet ? 24 : 16,
-              // top: isTablet ? 0 : 4,
-              // bottom: isTablet ? 0 : 2,
             ),
             child: Text(
               "SHEALEY TRUCK CENTER",
@@ -237,17 +417,19 @@ class _SearchScreenState extends State<SearchScreen>
           );
         }
 
+        final trainingData = trainingList[index - 1];
         double progress = 0.0;
-        if (mockProgress.containsKey(tab["title"])) {
-          List<double> values = mockProgress[tab["title"]]!;
+        if (mockProgress.containsKey(status)) {
+          List<double> values = mockProgress[status]!;
           progress = values[(index - 1) % values.length];
         }
 
         return TrainingCard(
-          status: tab["title"],
+          status: status,
           progress: progress,
           isTablet: isTablet,
           cardWidth: cardWidth,
+          trainingData: trainingData,
         );
       },
     );
@@ -267,6 +449,7 @@ class _SearchScreenState extends State<SearchScreen>
         onPressed: () {
           showModalBottomSheet(
             context: context,
+            backgroundColor: const Color(0xfffcfcf6), // Set bottom sheet background color
             isScrollControlled: true,
             constraints: BoxConstraints(
               maxWidth: isDesktop ? screenWidth * 0.4 : double.infinity,
@@ -280,93 +463,107 @@ class _SearchScreenState extends State<SearchScreen>
               return StatefulBuilder(
                 builder: (context, setState) {
                   return SingleChildScrollView(
-                    child: Container(
-                      padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                    child: Padding(
+                      // Added horizontal padding inside the bottom sheet
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isDesktop ? 30 : 20,
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              vertical: isDesktop ? 24 : (isTablet ? 20 : 16),
-                              horizontal: isDesktop ? 30 : 20,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    InkWell(
-                                      onTap: () => Navigator.pop(context),
-                                      child: Icon(
-                                        Icons.close,
-                                        size: isDesktop ? 26 : null,
+                      child: Container(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Header Section with extra padding
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                vertical: isDesktop ? 24 : (isTablet ? 20 : 16),
+                                horizontal: isDesktop ? 40 : 20, // Increased horizontal padding
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0), // Padding for the cross icon
+                                        child: InkWell(
+                                          onTap: () => Navigator.pop(context),
+                                          child: Icon(
+                                            Icons.close,
+                                            size: isDesktop ? 26 : null,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(width: isDesktop ? 16 : 12),
-                                    Text(
-                                      'Add Filters',
-                                      style: TextStyle(
-                                        fontSize: isDesktop ? 20 : (isTablet ? 18 : 16),
+                                      SizedBox(width: isDesktop ? 16 : 12),
+                                      Text(
+                                        'Add Filters',
+                                        style: TextStyle(
+                                          fontSize: isDesktop ? 22 : (isTablet ? 20 : 18),
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      // Add reset logic here
+                                    },
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: const Color(0xFF407B1E), // Text color
+                                      textStyle: TextStyle(
+                                        fontSize: isDesktop ? 22 : 18,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                  ],
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    // Add reset logic here
-                                  },
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: const Color(0xFF407B1E), // Text color
-                                    textStyle: TextStyle(fontSize: isDesktop ? 16 : 14),
+                                    child: Text('Reset Filters'),
                                   ),
-                                  child: const Text('Reset Filters'),
-                                ),
-
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          const Divider(height: 1),
-                          _buildFilterItem('Company', 'Shealey Truck Center', context, isTablet, isDesktop),
-                          _buildFilterItem('Dealerships', 'Shealey Truck Center Columbia', context, isTablet, isDesktop),
-                          _buildFilterItem('Department', 'All Departments', context, isTablet, isDesktop),
-                          _buildFilterItem('User', 'All Users', context, isTablet, isDesktop),
-                          _buildFilterItem('Date Range', '', context, isTablet, isDesktop),
-                          SizedBox(height: isDesktop ? 30 : 20),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isDesktop ? 24 : 16,
-                              vertical: isDesktop ? 16 : 10,
-                            ),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // Implement filter application logic
-                                Navigator.pop(context);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF407B1E),
-                                minimumSize: Size(
+                            const Divider(height: 1),
+                            _buildFilterItem('Company', 'Shealey Truck Center', context, isTablet, isDesktop),
+                            _buildFilterItem('Dealerships', 'Shealey Truck Center Columbia', context, isTablet, isDesktop),
+                            _buildFilterItem('Department', 'All Departments', context, isTablet, isDesktop),
+                            _buildFilterItem('User', 'All Users', context, isTablet, isDesktop),
+                            _buildFilterItem('Date Range', '', context, isTablet, isDesktop),
+                            SizedBox(height: isDesktop ? 30 : 20),
+                            // Padding for the Apply Filters button
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                isDesktop ? 24 : 16, // left
+                                isDesktop ? 16 : 10, // top
+                                isDesktop ? 24 : 16, // right
+                                isDesktop ? 30 : 35, // extra bottom padding
+                              ),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  // Implement filter application logic
+                                  Navigator.pop(context);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF407B1E),
+                                  minimumSize: Size(
                                     double.infinity,
-                                    isDesktop ? 60 : (isTablet ? 55 : 50)
+                                    isDesktop ? 60 : (isTablet ? 55 : 50),
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(isDesktop ? 30 : 28),
+                                  ),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      isDesktop ? 10 : 8
+                                child: Text(
+                                  'Apply Filters',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: isDesktop ? 20 : 18,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
-                              child: Text(
-                                'Apply Filters',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: isDesktop ? 18 : 16,
-                                ),
-                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -385,17 +582,18 @@ class _SearchScreenState extends State<SearchScreen>
           ),
         ),
         icon: Icon(
-            Icons.filter_alt,
-            size: isDesktop ? 32 : (isTablet ? 28 : 24)
+          Icons.filter_alt,
+          size: isDesktop ? 32 : (isTablet ? 28 : 24),
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(
-              isDesktop ? 40 : (isTablet ? 35 : 30)
+            isDesktop ? 40 : (isTablet ? 35 : 30),
           ),
         ),
       ),
     );
   }
+
 
 // Updated helper function to handle different screen sizes
   Widget _buildFilterItem(String title, String value, BuildContext context, [bool isTablet = false, bool isDesktop = false]) {
@@ -404,6 +602,7 @@ class _SearchScreenState extends State<SearchScreen>
         // Navigate to specific filter selection
       },
       child: Container(
+
         padding: EdgeInsets.symmetric(
           horizontal: isDesktop ? 30 : 20,
           vertical: isDesktop ? 20 : 16,
@@ -414,7 +613,7 @@ class _SearchScreenState extends State<SearchScreen>
             Text(
               title,
               style: TextStyle(
-                fontSize: isDesktop ? 17 : 15,
+                fontSize: isDesktop ? 20 : 18,
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -424,7 +623,7 @@ class _SearchScreenState extends State<SearchScreen>
                   value,
                   style: TextStyle(
                     color: Colors.grey,
-                    fontSize: isDesktop ? 16 : 14,
+                    fontSize: isDesktop ? 20 : 18,
                   ),
                 ),
                 SizedBox(width: isDesktop ? 12 : 8),
@@ -483,7 +682,7 @@ class _SearchScreenState extends State<SearchScreen>
               pinned: true,
               delegate: _SliverAppBarDelegate(
                 _buildAdaptiveTabBar(isTablet),
-                gap: innerBoxIsScrolled ? (isTablet ? 35 : 25) : (isTablet ? 8 : 5),
+                gap: innerBoxIsScrolled ? (isTablet ? 35 : 25) : (isTablet ? 12 : 5),
               ),
             ),
           ];
@@ -510,48 +709,6 @@ class _SearchScreenState extends State<SearchScreen>
   }
 }
 
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabBar _tabBar;
-  final double gap;
-
-  _SliverAppBarDelegate(this._tabBar, {this.gap = 10});
-
-  @override
-  double get minExtent => _tabBar.preferredSize.height + gap;
-
-  @override
-  double get maxExtent => _tabBar.preferredSize.height + gap;
-
-  @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return true;
-  }
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      height: maxExtent,
-      color: Colors.white,
-      child: Stack(
-        children: [
-          Positioned(
-            top: gap,
-            left: 0,
-            right: 0,
-            child: MediaQuery.removePadding(
-              context: context,
-              removeLeft: true,
-              child: Transform.translate(
-                offset: const Offset(-18, 0),
-                child: _tabBar,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 class StatusTabWithImage extends StatelessWidget {
   final String title;
   final String imagePath;
@@ -578,7 +735,7 @@ class StatusTabWithImage extends StatelessWidget {
           width: isTablet ? 28 : 24,
           height: isTablet ? 28 : 24,
         ),
-        SizedBox(width: isTablet ? 10 : 8),
+        SizedBox(width: isTablet ? 6 : 4),
         Text(
           title,
           style: TextStyle(
@@ -616,12 +773,14 @@ class TrainingCard extends StatelessWidget {
   final double? progress;
   final bool isTablet;
   final double cardWidth;
+  final TrainingData trainingData;
 
   const TrainingCard({
     required this.status,
     this.progress,
     required this.isTablet,
     required this.cardWidth,
+    required this.trainingData,
   });
 
   double _getProgress() {
@@ -703,7 +862,7 @@ class TrainingCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "REGULATORY COMPLIANCE IN DEALERSHIP",
+                    trainingData.title,
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: isTablet ? 18 : 16,
@@ -715,7 +874,7 @@ class TrainingCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          "Training on local, state, and federal regulations applicable to automotive sales and services...",
+                          trainingData.message,
                           style: TextStyle(
                             fontWeight: FontWeight.w300,
                             fontSize: isTablet ? 18 : 14,
@@ -750,15 +909,15 @@ class TrainingCard extends StatelessWidget {
       children: [
         _buildInfoItem(
           Icons.store_mall_directory,
-          "Shealey Truck Center",
+          trainingData.companyName,
         ),
         _buildInfoItem(
           Icons.person,
-          "Miguel",
+          trainingData.pocName,
         ),
         _buildInfoItem(
           Icons.access_time_filled,
-          "01/26/2025",
+          trainingData.date,
         ),
       ],
     );
@@ -787,6 +946,51 @@ class TrainingCard extends StatelessWidget {
     );
   }
 }
+
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  final TabBar _tabBar;
+  final double gap;
+
+  _SliverAppBarDelegate(this._tabBar, {this.gap = 10});
+
+  @override
+  double get minExtent => _tabBar.preferredSize.height + gap;
+
+  @override
+  double get maxExtent => _tabBar.preferredSize.height + gap;
+
+  @override
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      height: maxExtent,
+      color: Colors.white,
+      child: Stack(
+        children: [
+          Positioned(
+            top: gap,
+            left: 0,
+            right: 0,
+            child: MediaQuery.removePadding(
+              context: context,
+              removeLeft: true,
+              child: Transform.translate(
+                offset: const Offset(-18, 0),
+                child: _tabBar,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
 
 class BottomNavigation extends StatelessWidget {
   final int selectedIndex;
