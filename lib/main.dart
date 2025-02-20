@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+// import 'package:provider/provider.dart';
 import 'dart:math' as math;
 
 // Helper function for clamping double values
@@ -13,17 +14,21 @@ class TrainingData {
   final String title;
   final String message;
   final String companyName;
-  final String pocName;
+  final String user;
   final String date;
   final String status;
+  final String department;  // Added for department filtering
+
 
   TrainingData({
     required this.title,
     required this.message,
     required this.companyName,
-    required this.pocName,
+    required this.user,
     required this.date,
     required this.status,
+    this.department = '',  // Default empty string
+
   });
 }
 
@@ -49,7 +54,8 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaleFactor: clampDouble(MediaQuery.of(context).textScaleFactor, 0.8, 1.4),
+            textScaleFactor:
+            clampDouble(MediaQuery.of(context).textScaleFactor, 0.8, 1.4),
           ),
           child: child!,
         );
@@ -68,6 +74,15 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+
+  // Main filters used to render data.
+  Map<String, dynamic> selectedFilters = {
+    'Company': <String>[],
+    'Dealerships': <String>[],
+    'Department': <String>[],
+    'User': <String>[],
+    'Date Range': '', // Keep this as String since it's not multi-select
+  };
 
   final List<Map<String, dynamic>> statusTabs = [
     {
@@ -102,13 +117,21 @@ class _SearchScreenState extends State<SearchScreen>
     },
   ];
 
+  final Map<String, List<String>> filterOptions = {
+    'Company': ['Shealey Truck Center', 'LoadMe'],
+    'Dealerships': ['Columbia', 'Charleston', 'Greenville'],
+    'Department': ['All Departments', 'Sales', 'Service', 'Parts', 'Administration'],
+    'User': ["john", "abhishek", "miguel", "lisa", "james"],
+    'Date Range': ['Last 7 Days', 'Last 30 Days', 'Last 90 Days', 'Custom Range'],
+  };
+
   final Map<String, List<TrainingData>> trainingDataByStatus = {
     "Scheduled": [
       TrainingData(
         title: "NEW VEHICLE TECHNOLOGY TRAINING",
         message: "Overview of latest automotive technologies and systems...",
-        companyName: "Shealey Truck Center",
-        pocName: "Robert",
+        companyName: "LoadMe",
+        user: "john",
         date: "03/15/2025",
         status: "Scheduled",
       ),
@@ -116,7 +139,7 @@ class _SearchScreenState extends State<SearchScreen>
         title: "ELECTRIC VEHICLE MAINTENANCE",
         message: "Comprehensive training on EV systems and servicing...",
         companyName: "Shealey Truck Center",
-        pocName: "Lisa",
+        user: "abhishek",
         date: "03/20/2025",
         status: "Scheduled",
       ),
@@ -124,7 +147,7 @@ class _SearchScreenState extends State<SearchScreen>
         title: "DIAGNOSTIC TOOLS WORKSHOP",
         message: "Hands-on training with new diagnostic equipment...",
         companyName: "Shealey Truck Center",
-        pocName: "Michael",
+        user: "miguel",
         date: "03/25/2025",
         status: "Scheduled",
       ),
@@ -133,8 +156,8 @@ class _SearchScreenState extends State<SearchScreen>
       TrainingData(
         title: "REGULATORY COMPLIANCE IN DEALERSHIP",
         message: "Training on local, state, and federal regulations...",
-        companyName: "Shealey Truck Center",
-        pocName: "Miguel",
+        companyName: "LoadMe",
+        user: "lisa",
         date: "02/28/2025",
         status: "In-Progress",
       ),
@@ -142,7 +165,7 @@ class _SearchScreenState extends State<SearchScreen>
         title: "SAFETY PROTOCOLS AND PROCEDURES",
         message: "Comprehensive training on workplace safety standards...",
         companyName: "Shealey Truck Center",
-        pocName: "Sarah",
+        user: "james",
         date: "02/25/2025",
         status: "In-Progress",
       ),
@@ -150,7 +173,7 @@ class _SearchScreenState extends State<SearchScreen>
         title: "CUSTOMER SERVICE EXCELLENCE",
         message: "Interactive workshop on effective communication...",
         companyName: "Shealey Truck Center",
-        pocName: "James",
+        user: "john",
         date: "02/20/2025",
         status: "In-Progress",
       ),
@@ -158,7 +181,7 @@ class _SearchScreenState extends State<SearchScreen>
         title: "INVENTORY MANAGEMENT SYSTEMS",
         message: "Hands-on training for using the new inventory tracking software...",
         companyName: "Shealey Truck Center",
-        pocName: "Elena",
+        user: "abhishek",
         date: "02/15/2025",
         status: "In-Progress",
       ),
@@ -168,7 +191,7 @@ class _SearchScreenState extends State<SearchScreen>
         title: "ANNUAL SAFETY CERTIFICATION",
         message: "Mandatory safety certification renewal...",
         companyName: "Shealey Truck Center",
-        pocName: "Thomas",
+        user: "miguel",
         date: "01/15/2025",
         status: "Overdue",
       ),
@@ -176,7 +199,7 @@ class _SearchScreenState extends State<SearchScreen>
         title: "HAZMAT HANDLING PROCEDURES",
         message: "Required training for hazardous materials handling...",
         companyName: "Shealey Truck Center",
-        pocName: "Amanda",
+        user: "lisa",
         date: "01/10/2025",
         status: "Overdue",
       ),
@@ -186,7 +209,7 @@ class _SearchScreenState extends State<SearchScreen>
         title: "ADVANCED DIAGNOSTICS CERTIFICATION",
         message: "Certification program for advanced diagnostic techniques...",
         companyName: "Shealey Truck Center",
-        pocName: "Chris",
+        user: "james",
         date: "01/05/2025",
         status: "Failed",
       ),
@@ -194,7 +217,7 @@ class _SearchScreenState extends State<SearchScreen>
         title: "PARTS INVENTORY MANAGEMENT",
         message: "Training on new parts management system...",
         companyName: "Shealey Truck Center",
-        pocName: "Patricia",
+        user: "john",
         date: "01/02/2025",
         status: "Failed",
       ),
@@ -202,7 +225,7 @@ class _SearchScreenState extends State<SearchScreen>
         title: "CUSTOMER DATA PROTECTION",
         message: "Training on privacy regulations and data handling...",
         companyName: "Shealey Truck Center",
-        pocName: "Kevin",
+        user: "abhishek",
         date: "12/28/2024",
         status: "Failed",
       ),
@@ -212,7 +235,7 @@ class _SearchScreenState extends State<SearchScreen>
         title: "SEASONAL MAINTENANCE PROCEDURES",
         message: "Training on seasonal vehicle maintenance requirements...",
         companyName: "Shealey Truck Center",
-        pocName: "Nancy",
+        user: "miguel",
         date: "12/15/2024",
         status: "Expired",
       ),
@@ -220,7 +243,7 @@ class _SearchScreenState extends State<SearchScreen>
         title: "WARRANTY PROCESSING",
         message: "Training on warranty claim procedures...",
         companyName: "Shealey Truck Center",
-        pocName: "Paul",
+        user: "lisa",
         date: "12/10/2024",
         status: "Expired",
       ),
@@ -230,7 +253,7 @@ class _SearchScreenState extends State<SearchScreen>
         title: "BASIC VEHICLE MAINTENANCE",
         message: "Fundamental vehicle maintenance procedures...",
         companyName: "Shealey Truck Center",
-        pocName: "George",
+        user: "james",
         date: "02/01/2025",
         status: "Passed",
       ),
@@ -238,7 +261,7 @@ class _SearchScreenState extends State<SearchScreen>
         title: "SALES TECHNIQUES AND STRATEGIES",
         message: "Advanced training on consultative selling approaches...",
         companyName: "Shealey Truck Center",
-        pocName: "Maria",
+        user: "john",
         date: "01/25/2025",
         status: "Passed",
       ),
@@ -246,7 +269,7 @@ class _SearchScreenState extends State<SearchScreen>
         title: "CUSTOMER RELATIONSHIP MANAGEMENT",
         message: "Training on CRM system and customer retention...",
         companyName: "Shealey Truck Center",
-        pocName: "Daniel",
+        user: "abhishek",
         date: "01/20/2025",
         status: "Passed",
       ),
@@ -254,13 +277,12 @@ class _SearchScreenState extends State<SearchScreen>
         title: "DEALERSHIP MANAGEMENT SYSTEM",
         message: "Overview of dealership management software...",
         companyName: "Shealey Truck Center",
-        pocName: "Sophie",
+        user: "miguel",
         date: "01/15/2025",
         status: "Passed",
       ),
     ],
   };
-
 
   final Map<String, List<double>> mockProgress = {
     "In-Progress": [0.25, 0.45, 0.65, 0.85],
@@ -285,6 +307,7 @@ class _SearchScreenState extends State<SearchScreen>
     super.dispose();
   }
 
+  // Builds the top search bar.
   Widget _buildSearchBar(bool isTablet) {
     return Container(
       height: isTablet ? 50 : 40,
@@ -321,7 +344,8 @@ class _SearchScreenState extends State<SearchScreen>
                     color: const Color(0xFF66656A),
                   ),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: isTablet ? 12 : 8),
+                  contentPadding:
+                  EdgeInsets.symmetric(vertical: isTablet ? 12 : 8),
                 ),
               ),
             ),
@@ -356,6 +380,7 @@ class _SearchScreenState extends State<SearchScreen>
     );
   }
 
+  // Builds the adaptive tab bar using the statusTabs list.
   TabBar _buildAdaptiveTabBar(bool isTablet) {
     return TabBar(
       controller: _tabController,
@@ -388,6 +413,84 @@ class _SearchScreenState extends State<SearchScreen>
     );
   }
 
+
+  List<TrainingData> getFilteredTrainingData(String status) {
+    List<TrainingData> originalList = trainingDataByStatus[status] ?? [];
+
+    // Check if any filters are active
+    bool hasActiveFilters = false;
+    selectedFilters.forEach((key, value) {
+      if (key == 'Date Range' && (value as String).isNotEmpty) {
+        hasActiveFilters = true;
+      } else if (key != 'Date Range' && (value as List<String>).isNotEmpty) {
+        hasActiveFilters = true;
+      }
+    });
+
+    // If no filters are active, return the original list
+    if (!hasActiveFilters) {
+      return originalList;
+    }
+
+    return originalList.where((training) {
+      // Company filter (multi-select)
+      final List<String> selectedCompanies = selectedFilters['Company'] as List<String>;
+      if (selectedCompanies.isNotEmpty && !selectedCompanies.contains(training.companyName)) {
+        return false;
+      }
+
+      // Dealerships filter (multi-select)
+      final List<String> selectedDealerships = selectedFilters['Dealerships'] as List<String>;
+      if (selectedDealerships.isNotEmpty) {
+        bool matchesDealership = false;
+        for (String dealership in selectedDealerships) {
+          if (training.companyName.contains(dealership)) {
+            matchesDealership = true;
+            break;
+          }
+        }
+        if (!matchesDealership) return false;
+      }
+
+      // Department filter (multi-select)
+      final List<String> selectedDepartments = selectedFilters['Department'] as List<String>;
+      if (selectedDepartments.isNotEmpty &&
+          !selectedDepartments.contains('All Departments') &&
+          !selectedDepartments.contains(training.department)) {
+        return false;
+      }
+
+      // User filter (multi-select)
+      final List<String> selectedUsers = selectedFilters['User'] as List<String>;
+      if (selectedUsers.isNotEmpty &&
+          !selectedUsers.contains('All Users') &&
+          !selectedUsers.contains(training.user)) {
+        return false;
+      }
+
+      // Date Range filter (single-select)
+      if ((selectedFilters['Date Range'] as String).isNotEmpty) {
+        DateTime trainingDate = DateTime.parse(training.date.split('/').reversed.join('-'));
+        DateTime now = DateTime.now();
+
+        switch (selectedFilters['Date Range'] as String) {
+          case 'Last 7 Days':
+            return now.difference(trainingDate).inDays <= 7;
+          case 'Last 30 Days':
+            return now.difference(trainingDate).inDays <= 30;
+          case 'Last 90 Days':
+            return now.difference(trainingDate).inDays <= 90;
+          case 'Custom Range':
+          // Implement custom date range logic here
+            return true;
+        }
+      }
+
+      return true;
+    }).toList();
+  }
+
+  // Builds the list view for each tab.
   Widget _buildAdaptiveListView(
       Map<String, dynamic> tab,
       bool isTablet,
@@ -395,48 +498,88 @@ class _SearchScreenState extends State<SearchScreen>
       double horizontalPadding,
       ) {
     final status = tab["title"];
-    final trainingList = trainingDataByStatus[status] ?? [];
+    final trainingList = getFilteredTrainingData(status);
 
-    return ListView.builder(
-      padding: EdgeInsets.all(isTablet ? 12 : 8),
-      itemCount: trainingList.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return Padding(
-            padding: EdgeInsets.only(
-              left: isTablet ? 24 : 16,
-            ),
-            child: Text(
-              "SHEALEY TRUCK CENTER",
-              style: TextStyle(
-                fontSize: isTablet ? 16 : 14,
-                fontWeight: FontWeight.w500,
-                color: const Color(0xFF66656A),
+    // Update the count in statusTabs
+    final statusTabIndex = statusTabs.indexWhere((t) => t["title"] == status);
+    if (statusTabIndex != -1) {
+      statusTabs[statusTabIndex]["count"] = trainingList.length;
+    }
+
+    return Column(
+      children: [
+        // Header row with company name and sort text + icon
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: isTablet ? 24 : 16,
+            vertical: 8,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                selectedFilters['Company']?.isNotEmpty == true
+                    ? selectedFilters['Company']!
+                    : "SHEALEY TRUCK CENTER",
+                style: TextStyle(
+                  fontSize: isTablet ? 16 : 14,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF66656A),
+                ),
               ),
-            ),
-          );
-        }
+              InkWell(
+                onTap: () {},
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 4),
+                    Icon(Icons.sort, color: Colors.grey[700], size: isTablet ? 20 : 18),
+                    Text(
+                      'Sort',
+                      style: TextStyle(
+                        fontSize: isTablet ? 18 : 12,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 1,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(Icons.arrow_drop_down, color: Colors.grey[700], size: 20),
 
-        final trainingData = trainingList[index - 1];
-        double progress = 0.0;
-        if (mockProgress.containsKey(status)) {
-          List<double> values = mockProgress[status]!;
-          progress = values[(index - 1) % values.length];
-        }
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        // List of training cards
+        Expanded(
+          child: ListView.builder(
+            padding: EdgeInsets.all(isTablet ? 12 : 8),
+            itemCount: trainingList.length,
+            itemBuilder: (context, index) {
+              final trainingData = trainingList[index];
+              double progress = 0.0;
+              if (mockProgress.containsKey(status)) {
+                List<double> values = mockProgress[status]!;
+                progress = values[index % values.length];
+              }
 
-        return TrainingCard(
-          status: status,
-          progress: progress,
-          isTablet: isTablet,
-          cardWidth: cardWidth,
-          trainingData: trainingData,
-        );
-      },
+              return TrainingCard(
+                status: status,
+                progress: progress,
+                isTablet: isTablet,
+                cardWidth: cardWidth,
+                trainingData: trainingData,
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
-
+  // Builds the floating action button that opens the main filter bottom sheet.
   Widget _buildAdaptiveFloatingActionButton(bool isTablet) {
-    // Determine if desktop based on screen width
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth >= 1200;
 
@@ -447,9 +590,10 @@ class _SearchScreenState extends State<SearchScreen>
       ),
       child: FloatingActionButton.extended(
         onPressed: () {
+          // Open main filter bottom sheet with temporary filters.
           showModalBottomSheet(
             context: context,
-            backgroundColor: const Color(0xfffcfcf6), // Set bottom sheet background color
+            backgroundColor: const Color(0xfffcfcf6),
             isScrollControlled: true,
             constraints: BoxConstraints(
               maxWidth: isDesktop ? screenWidth * 0.4 : double.infinity,
@@ -460,11 +604,19 @@ class _SearchScreenState extends State<SearchScreen>
               ),
             ),
             builder: (BuildContext context) {
+              // Create a temporary copy of the current filters.
+              Map<String, dynamic> tempFilters = {
+                'Company': List<String>.from(selectedFilters['Company'] as List<String>),
+                'Dealerships': List<String>.from(selectedFilters['Dealerships'] as List<String>),
+                'Department': List<String>.from(selectedFilters['Department'] as List<String>),
+                'User': List<String>.from(selectedFilters['User'] as List<String>),
+                'Date Range': selectedFilters['Date Range'],
+              };
+
               return StatefulBuilder(
-                builder: (context, setState) {
+                builder: (context, setModalState) {
                   return SingleChildScrollView(
                     child: Padding(
-                      // Added horizontal padding inside the bottom sheet
                       padding: EdgeInsets.symmetric(
                         horizontal: isDesktop ? 30 : 20,
                       ),
@@ -475,11 +627,11 @@ class _SearchScreenState extends State<SearchScreen>
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            // Header Section with extra padding
+                            // Header Section with Reset Filters.
                             Container(
                               padding: EdgeInsets.symmetric(
                                 vertical: isDesktop ? 24 : (isTablet ? 20 : 16),
-                                horizontal: isDesktop ? 40 : 20, // Increased horizontal padding
+                                horizontal: isDesktop ? 40 : 20,
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -487,7 +639,7 @@ class _SearchScreenState extends State<SearchScreen>
                                   Row(
                                     children: [
                                       Padding(
-                                        padding: const EdgeInsets.all(8.0), // Padding for the cross icon
+                                        padding: const EdgeInsets.all(8.0),
                                         child: InkWell(
                                           onTap: () => Navigator.pop(context),
                                           child: Icon(
@@ -508,38 +660,69 @@ class _SearchScreenState extends State<SearchScreen>
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      // Add reset logic here
+                                      setModalState(() {
+                                        tempFilters = {
+                                          'Company': <String>[],
+                                          'Dealerships': <String>[],
+                                          'Department': <String>[],
+                                          'User': <String>[],
+                                          'Date Range': '',
+                                        };
+                                      });
                                     },
                                     style: TextButton.styleFrom(
-                                      foregroundColor: const Color(0xFF407B1E), // Text color
+                                      foregroundColor: const Color(0xFF407B1E),
                                       textStyle: TextStyle(
                                         fontSize: isDesktop ? 22 : 18,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    child: Text('Reset Filters'),
+                                    child: const Text('Reset Filters'),
                                   ),
                                 ],
                               ),
                             ),
                             const Divider(height: 1),
-                            _buildFilterItem('Company', 'Shealey Truck Center', context, isTablet, isDesktop),
-                            _buildFilterItem('Dealerships', 'Shealey Truck Center Columbia', context, isTablet, isDesktop),
-                            _buildFilterItem('Department', 'All Departments', context, isTablet, isDesktop),
-                            _buildFilterItem('User', 'All Users', context, isTablet, isDesktop),
-                            _buildFilterItem('Date Range', '', context, isTablet, isDesktop),
+                            // List of filter items with temporary state.
+                            _buildFilterItem('Company', 'Select Company', context, isTablet, isDesktop, tempFilters, (filterTitle, value) {
+                              setModalState(() {
+                                tempFilters[filterTitle] = value;
+                              });
+                            }),
+                            _buildFilterItem('Dealerships', 'Select Dealership', context, isTablet, isDesktop, tempFilters, (filterTitle, value) {
+                              setModalState(() {
+                                tempFilters[filterTitle] = value;
+                              });
+                            }),
+                            _buildFilterItem('Department', 'Select Department', context, isTablet, isDesktop, tempFilters, (filterTitle, value) {
+                              setModalState(() {
+                                tempFilters[filterTitle] = value;
+                              });
+                            }),
+                            _buildFilterItem('User', 'Select User', context, isTablet, isDesktop, tempFilters, (filterTitle, value) {
+                              setModalState(() {
+                                tempFilters[filterTitle] = value;
+                              });
+                            }),
+                            _buildFilterItem('Date Range', 'Select Date Range', context, isTablet, isDesktop, tempFilters, (filterTitle, value) {
+                              setModalState(() {
+                                tempFilters[filterTitle] = value;
+                              });
+                            }),
                             SizedBox(height: isDesktop ? 30 : 20),
-                            // Padding for the Apply Filters button
+                            // Apply Filters Button commits the temporary filters.
                             Padding(
                               padding: EdgeInsets.fromLTRB(
-                                isDesktop ? 24 : 16, // left
-                                isDesktop ? 16 : 10, // top
-                                isDesktop ? 24 : 16, // right
-                                isDesktop ? 30 : 35, // extra bottom padding
+                                isDesktop ? 24 : 16,
+                                isDesktop ? 16 : 10,
+                                isDesktop ? 24 : 16,
+                                isDesktop ? 30 : 35,
                               ),
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // Implement filter application logic
+                                  setState(() {
+                                    selectedFilters = Map.from(tempFilters);
+                                  });
                                   Navigator.pop(context);
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -593,16 +776,44 @@ class _SearchScreenState extends State<SearchScreen>
       ),
     );
   }
+  // Updated helper function to build each filter item using temporary filters.
+  Widget _buildFilterItem(
+      String title,
+      String defaultDisplayText,
+      BuildContext context,
+      bool isTablet,
+      bool isDesktop,
+      Map<String, dynamic> tempFilters,
+      Function(String, dynamic) onUpdate,
+      ) {
+    String displayText = defaultDisplayText;
 
+    // Handle display text based on filter type
+    if (title != 'Date Range') {
+      // For multi-select filters
+      final selectedValues = tempFilters[title] as List<String>;
+      if (selectedValues.isNotEmpty) {
+        if (selectedValues.length == 1) {
+          displayText = selectedValues.first;
+        } else {
+          displayText = '${selectedValues.length} selected';
+        }
+      }
+    } else {
+      // For single-select Date Range
+      displayText = tempFilters[title]?.isNotEmpty == true ? tempFilters[title] : defaultDisplayText;
+    }
 
-// Updated helper function to handle different screen sizes
-  Widget _buildFilterItem(String title, String value, BuildContext context, [bool isTablet = false, bool isDesktop = false]) {
     return InkWell(
-      onTap: () {
-        // Navigate to specific filter selection
-      },
+      onTap: () => _showFilterDetailSheet(
+          context,
+          title,
+          isTablet,
+          isDesktop,
+          tempFilters,
+          onUpdate
+      ),
       child: Container(
-
         padding: EdgeInsets.symmetric(
           horizontal: isDesktop ? 30 : 20,
           vertical: isDesktop ? 20 : 16,
@@ -610,20 +821,31 @@ class _SearchScreenState extends State<SearchScreen>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: isDesktop ? 20 : 18,
-                fontWeight: FontWeight.w400,
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: isDesktop ? 20 : 18,
+                  fontWeight: FontWeight.w400,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             Row(
               children: [
-                Text(
-                  value,
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: isDesktop ? 20 : 18,
+                Container(
+                  constraints: BoxConstraints(maxWidth: 150),
+                  child: Text(
+                    displayText,
+                    style: TextStyle(
+                      color: title != 'Date Range'
+                          ? ((tempFilters[title] as List<String>).isNotEmpty ? const Color(0xFF407B1E) : Colors.grey)
+                          : (tempFilters[title]?.isNotEmpty == true ? const Color(0xFF407B1E) : Colors.grey),
+                      fontSize: isDesktop ? 20 : 18,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 SizedBox(width: isDesktop ? 12 : 8),
@@ -639,10 +861,244 @@ class _SearchScreenState extends State<SearchScreen>
       ),
     );
   }
-// End of helper function
+  // Modified bottom sheet for filter detail that uses the temporary filters.
+  void _showFilterDetailSheet(
+      BuildContext context,
+      String filterTitle,
+      bool isTablet,
+      bool isDesktop,
+      Map<String, dynamic> tempFilters,
+      Function(String, dynamic) onUpdate) {
+    final screenWidth = MediaQuery.of(context).size.width;
 
+    // Use fixed heights that match the main filter sheet
+    final double sheetHeight = MediaQuery.of(context).size.height *
+        (isDesktop ? 0.7 : (isTablet ? 0.4 : 0.5));
 
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxWidth: isDesktop ? screenWidth * 0.4 : screenWidth,
+        maxHeight: sheetHeight,
+      ),
+      builder: (BuildContext context) {
+        // Initialize the temporary values
+        List<String> tempSelectedValues = [];
+        String tempDateRange = '';
 
+        if (filterTitle != 'Date Range') {
+          tempSelectedValues = List<String>.from(tempFilters[filterTitle] as List<String>);
+        } else {
+          tempDateRange = tempFilters[filterTitle] as String;
+        }
+
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              height: sheetHeight,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFCFCF6),
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(isDesktop ? 30 : 20),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: isDesktop ? 24 : (isTablet ? 20 : 16),
+                      horizontal: isDesktop ? 30 : 20,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            InkWell(
+                              onTap: () => Navigator.pop(context),
+                              child: Icon(
+                                Icons.close,
+                                size: isDesktop ? 26 : 24,
+                              ),
+                            ),
+                            SizedBox(width: isDesktop ? 16 : 12),
+                            Text(
+                              filterTitle == 'Date Range'
+                                  ? 'Select $filterTitle'
+                                  : 'Select $filterTitle (Multiple)',
+                              style: TextStyle(
+                                fontSize: isDesktop ? 22 : (isTablet ? 20 : 18),
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            if (filterTitle != 'Date Range') {
+                              setModalState(() {
+                                tempSelectedValues.clear();
+                              });
+                            } else {
+                              setModalState(() {
+                                tempDateRange = '';
+                              });
+                            }
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: const Color(0xFF407B1E),
+                          ),
+                          child: Text(
+                            'Reset',
+                            style: TextStyle(
+                              fontSize: isDesktop ? 18 : 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1),
+
+                  // List of filter options
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: filterOptions[filterTitle]?.length ?? 0,
+                      itemBuilder: (context, index) {
+                        final option = filterOptions[filterTitle]![index];
+
+                        if (filterTitle != 'Date Range') {
+                          // Multi-select handling with text color and checkmark
+                          final isSelected = tempSelectedValues.contains(option);
+                          return InkWell(
+                            onTap: () {
+                              setModalState(() {
+                                if (isSelected) {
+                                  tempSelectedValues.remove(option);
+                                } else {
+                                  tempSelectedValues.add(option);
+                                }
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isDesktop ? 30 : 20,
+                                vertical: isDesktop ? 20 : 16,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      option,
+                                      style: TextStyle(
+                                        fontSize: isDesktop ? 20 : 18,
+                                        fontWeight: FontWeight.w400,
+                                        color: isSelected ? const Color(0xFF407B1E) : Colors.black,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    Icon(
+                                      Icons.check,
+                                      color: const Color(0xFF407B1E),
+                                      size: isDesktop ? 24 : 20,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        } else {
+                          // Single-select handling with text color and checkmark
+                          final isSelected = tempDateRange == option;
+                          return InkWell(
+                            onTap: () {
+                              setModalState(() {
+                                tempDateRange = option;
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isDesktop ? 30 : 20,
+                                vertical: isDesktop ? 20 : 16,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      option,
+                                      style: TextStyle(
+                                        fontSize: isDesktop ? 20 : 18,
+                                        fontWeight: FontWeight.w400,
+                                        color: isSelected ? const Color(0xFF407B1E) : Colors.black,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    Icon(
+                                      Icons.check,
+                                      color: const Color(0xFF407B1E),
+                                      size: isDesktop ? 24 : 20,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+
+                  // Apply button
+                  Padding(
+                    padding: EdgeInsets.all(isDesktop ? 24 : 16),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (filterTitle != 'Date Range') {
+                          onUpdate(filterTitle, tempSelectedValues);
+                        } else {
+                          onUpdate(filterTitle, tempDateRange);
+                        }
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF407B1E),
+                        minimumSize: Size(
+                          double.infinity,
+                          isDesktop ? 60 : 50,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(isDesktop ? 30 : 25),
+                        ),
+                      ),
+                      child: Text(
+                        'Apply',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isDesktop ? 20 : 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -701,14 +1157,57 @@ class _SearchScreenState extends State<SearchScreen>
       ),
       floatingActionButton: _buildAdaptiveFloatingActionButton(isTablet),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: BottomNavigation(
+      bottomNavigationBar: const BottomNavigation(
         selectedIndex: 2,
-        isTablet: isTablet,
+        isTablet: false,
       ),
     );
   }
 }
 
+// Custom SliverPersistentHeaderDelegate for the tab bar.
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  final TabBar _tabBar;
+  final double gap;
+
+  _SliverAppBarDelegate(this._tabBar, {this.gap = 10});
+
+  @override
+  double get minExtent => _tabBar.preferredSize.height + gap;
+
+  @override
+  double get maxExtent => _tabBar.preferredSize.height + gap;
+
+  @override
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) => true;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      height: maxExtent,
+      color: Colors.white,
+      child: Stack(
+        children: [
+          Positioned(
+            top: gap,
+            left: 0,
+            right: 0,
+            child: MediaQuery.removePadding(
+              context: context,
+              removeLeft: true,
+              child: Transform.translate(
+                offset: const Offset(-18, 0),
+                child: _tabBar,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Stub widget for StatusTabWithImage (replace with your full implementation).
 class StatusTabWithImage extends StatelessWidget {
   final String title;
   final String imagePath;
@@ -768,6 +1267,7 @@ class StatusTabWithImage extends StatelessWidget {
   }
 }
 
+// Stub widget for TrainingCard (replace with your full implementation).
 class TrainingCard extends StatelessWidget {
   final String status;
   final double? progress;
@@ -776,12 +1276,13 @@ class TrainingCard extends StatelessWidget {
   final TrainingData trainingData;
 
   const TrainingCard({
+    Key? key,
     required this.status,
     this.progress,
     required this.isTablet,
     required this.cardWidth,
     required this.trainingData,
-  });
+  }) : super(key: key);
 
   double _getProgress() {
     if (progress != null) return progress!;
@@ -808,7 +1309,7 @@ class TrainingCard extends StatelessWidget {
       case "Passed":
       case "In-Progress":
       default:
-        return Color(0xFF407B1E);
+        return const Color(0xFF407B1E);
     }
   }
 
@@ -819,7 +1320,7 @@ class TrainingCard extends StatelessWidget {
     return Container(
       width: cardWidth,
       child: Card(
-        color: Color(0xFFF2F5EC),
+        color: const Color(0xFFF2F5EC),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(isTablet ? 24 : 20),
         ),
@@ -892,7 +1393,7 @@ class TrainingCard extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: isTablet ? 6 : 3),
-                  _buildInfoSection(),
+                  _buildInfoSection(context),
                 ],
               ),
             ),
@@ -902,23 +1403,14 @@ class TrainingCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoSection() {
+  Widget _buildInfoSection(BuildContext context) {
     return Wrap(
       spacing: isTablet ? 36 : 30,
       runSpacing: isTablet ? 12 : 8,
       children: [
-        _buildInfoItem(
-          Icons.store_mall_directory,
-          trainingData.companyName,
-        ),
-        _buildInfoItem(
-          Icons.person,
-          trainingData.pocName,
-        ),
-        _buildInfoItem(
-          Icons.access_time_filled,
-          trainingData.date,
-        ),
+        _buildInfoItem(Icons.store_mall_directory, trainingData.companyName),
+        _buildInfoItem(Icons.person, trainingData.user),
+        _buildInfoItem(Icons.access_time_filled, trainingData.date),
       ],
     );
   }
@@ -929,14 +1421,14 @@ class TrainingCard extends StatelessWidget {
       children: [
         Icon(
           icon,
-          color: Color(0xFF407B1D),
+          color: const Color(0xFF407B1D),
           size: isTablet ? 20 : 16,
         ),
         SizedBox(width: isTablet ? 7 : 5),
         Text(
           text,
           style: TextStyle(
-            color: Color(0xFF407B1D),
+            color: const Color(0xFF407B1D),
             fontSize: isTablet ? 18 : 14,
             fontFamily: 'Proxima Nova',
             fontWeight: FontWeight.w400,
@@ -947,48 +1439,6 @@ class TrainingCard extends StatelessWidget {
   }
 }
 
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabBar _tabBar;
-  final double gap;
-
-  _SliverAppBarDelegate(this._tabBar, {this.gap = 10});
-
-  @override
-  double get minExtent => _tabBar.preferredSize.height + gap;
-
-  @override
-  double get maxExtent => _tabBar.preferredSize.height + gap;
-
-  @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return true;
-  }
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      height: maxExtent,
-      color: Colors.white,
-      child: Stack(
-        children: [
-          Positioned(
-            top: gap,
-            left: 0,
-            right: 0,
-            child: MediaQuery.removePadding(
-              context: context,
-              removeLeft: true,
-              child: Transform.translate(
-                offset: const Offset(-18, 0),
-                child: _tabBar,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 
 
